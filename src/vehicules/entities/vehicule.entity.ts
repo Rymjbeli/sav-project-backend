@@ -10,10 +10,11 @@ import {
 } from 'typeorm';
 import { Appointment } from '../../appointments/entities/appointment.entity';
 import { Client } from '../../users/entities/client.entity';
+import { TimestampEntity } from '../../shared/entities/timestamp';
 
 @Entity()
 @ObjectType()
-export class Vehicule {
+export class Vehicule extends TimestampEntity {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
   id: number;
