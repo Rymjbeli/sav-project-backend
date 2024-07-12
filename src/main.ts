@@ -3,7 +3,8 @@ import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as path from 'node:path';
 import { ValidationPipe } from '@nestjs/common';
-import helmet from 'helmet';
+import * as helmet from 'helmet';
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors({
@@ -18,7 +19,6 @@ async function bootstrap() {
       },
     }),
   );
-
   app.useStaticAssets(path.join(__dirname, '../uploads'));
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
   const port = process.env.PORT || 3000;

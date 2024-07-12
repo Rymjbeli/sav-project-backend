@@ -6,6 +6,11 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { VehiculesModule } from './vehicules/vehicules.module';
+import { ServicesModule } from './services/services.module';
+import { AppointmentsModule } from './appointments/appointments.module';
+import { AuthModule } from './auth/auth.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -30,6 +35,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     }),
 
     UsersModule,
+    VehiculesModule,
+    ServicesModule,
+    AppointmentsModule,
+    AuthModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
