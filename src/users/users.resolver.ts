@@ -3,14 +3,27 @@ import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
+import { AuthService } from '../auth/auth.service';
 
 @Resolver(() => User)
 export class UsersResolver {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private authService: AuthService,
+  ) {}
 
   @Mutation(() => User)
-  createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
-    return this.usersService.create(createUserInput);
+  async registerClient(
+    @Args('userData') userData: CreateUserInput,
+  ): Promise<User> {
+    return this.authService.registerClient(userData);
+  }
+
+  @Mutation(() => User)
+  async registerAdmin(
+    @Args('userData') userData: CreateUserInput,
+  ): Promise<User> {
+    return this.authService.registerAdmin(userData);
   }
 
   @Query(() => [User], { name: 'users' })
