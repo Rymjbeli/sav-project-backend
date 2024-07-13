@@ -16,7 +16,7 @@ import { Client } from '../../users/entities/client.entity';
 export class Vehicule {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
-  id: number;
+  id: string;
 
   @Column({
     type: 'enum',

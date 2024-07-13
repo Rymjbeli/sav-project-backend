@@ -9,7 +9,7 @@ import { Client } from '../../users/entities/client.entity';
 export class Appointment {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
-  id: number;
+  id: string;
 
   @Column()
   @Field(() => Date)
