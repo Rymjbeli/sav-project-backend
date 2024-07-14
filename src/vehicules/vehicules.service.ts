@@ -10,17 +10,21 @@ import { Vehicule } from './entities/vehicule.entity';
 import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { Client } from '../users/entities/client.entity';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class VehiculesService {
   constructor(
     @InjectRepository(Vehicule)
     private vehiculeRepository: Repository<Vehicule>,
+    private usersService: UsersService,
   ) {}
   async create(createVehiculeInput: CreateVehiculeInput, client: Client) {
-    const newVehicule = this.vehiculeRepository.create(createVehiculeInput);
-    newVehicule.client = client;
-    return await this.vehiculeRepository.save(newVehicule);
+    if (createVehiculeInput.clientID === client.id) {
+      const newVehicule = this.vehiculeRepository.create(createVehiculeInput);
+      return await this.vehiculeRepository.save(newVehicule);
+    }
+    throw new UnauthorizedException('Unauthorized');
   }
 
   async findAll(user: User) {
@@ -35,7 +39,7 @@ export class VehiculesService {
     }
   }
 
-  async findOne(id: number, user: User) {
+  async findOne(id: string, user: User) {
     const vehicule = await this.vehiculeRepository.findOneBy({ id });
     if (!vehicule) {
       throw new NotFoundException('Vehicule not found');
@@ -51,11 +55,8 @@ export class VehiculesService {
     }
   }
 
-  async update(
-    id: number,
-    updateVehiculeInput: UpdateVehiculeInput,
-    client: Client,
-  ) {
+  async update(updateVehiculeInput: UpdateVehiculeInput, client: Client) {
+    const id = updateVehiculeInput.id;
     const vehicule = await this.vehiculeRepository.findOne({
       where: { id },
       relations: ['client'],
@@ -73,16 +74,23 @@ export class VehiculesService {
     }
   }
 
-  async remove(id: number, user: User) {
+  async remove(id: string, user: User) {
     const vehicule = await this.findOne(id, user);
-    if (user.role === 'admin' || user.role === 'super_admin') {
-      return this.vehiculeRepository.softRemove(vehicule);
-    } else {
-      return this.vehiculeRepository.delete({ id, client: user as Client });
+    if (vehicule) {
+      if (
+        user.role === 'admin' ||
+        user.role === 'super_admin' ||
+        vehicule.client === user
+      ) {
+        return this.vehiculeRepository.softRemove(vehicule);
+      } else {
+        throw new UnauthorizedException('Unauthorized');
+      }
     }
+    throw new NotFoundException('Vehicle not found');
   }
 
-  async restore(id: number, user: User) {
+  async restore(id: string, user: User) {
     const vehicule = await this.vehiculeRepository.findOne({
       where: { id },
       withDeleted: true,
@@ -95,5 +103,9 @@ export class VehiculesService {
     } else {
       throw new UnauthorizedException('Unauthorized');
     }
+  }
+
+  async findVehiculeOwner(id: number) {
+    return this.usersService.findOne(id);
   }
 }

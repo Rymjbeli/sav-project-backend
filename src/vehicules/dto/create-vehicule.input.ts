@@ -1,4 +1,4 @@
-import { InputType, Int, Field } from '@nestjs/graphql';
+import { InputType, Int, Field, ID } from '@nestjs/graphql';
 import { MarqueEnum } from '../../enums/marque.enum';
 import { IsEnum, IsNotEmpty } from 'class-validator';
 import { TypeEnum } from '../../enums/type.enum';
@@ -32,7 +32,7 @@ export class CreateVehiculeInput {
   @Field(() => Int)
   @IsNotEmpty()
   kilometrage: number;
-  // @Field(() => Client)
-  // @IsNotEmpty()
-  // client: Client;
+  @IsNotEmpty()
+  @Field(() => ID)
+  clientID: string;
 }

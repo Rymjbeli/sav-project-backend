@@ -1,4 +1,12 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  Int,
+  ResolveField,
+  Parent, ID
+} from "@nestjs/graphql";
 import { VehiculesService } from './vehicules.service';
 import { Vehicule } from './entities/vehicule.entity';
 import { CreateVehiculeInput } from './dto/create-vehicule.input';
@@ -24,26 +32,30 @@ export class VehiculesResolver {
   }
 
   @Query(() => Vehicule, { name: 'vehicule' })
-  findOne(@Args('id', { type: () => Int }) id: number, user: User) {
+  findOne(@Args('id', { type: () => ID }) id: string, user: User) {
     return this.vehiculesService.findOne(id, user);
   }
 
   @Mutation(() => Vehicule)
   updateVehicule(
-    @Args('id', { type: () => Int }) id: number,
     @Args('updateVehiculeInput') updateVehiculeInput: UpdateVehiculeInput,
     client: Client,
   ) {
-    return this.vehiculesService.update(id, updateVehiculeInput, client);
+    return this.vehiculesService.update(updateVehiculeInput, client);
   }
 
   @Mutation(() => Vehicule)
-  removeVehicule(@Args('id', { type: () => Int }) id: number, user: User) {
+  removeVehicule(@Args('id', { type: () => ID }) id: string, user: User) {
     return this.vehiculesService.remove(id, user);
   }
 
   @Mutation(() => Vehicule)
-  restoreVehicule(@Args('id', { type: () => Int }) id: number, user: User) {
+  restoreVehicule(@Args('id', { type: () => ID }) id: string, user: User) {
     return this.vehiculesService.restore(id, user);
+  }
+
+  @ResolveField(() => Client)
+  client(@Parent() vehicule: Vehicule) {
+    return this.vehiculesService.findVehiculeOwner(vehicule.client?.id);
   }
 }

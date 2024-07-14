@@ -17,7 +17,7 @@ import { TimestampEntity } from '../../shared/entities/timestamp';
 export class Vehicule extends TimestampEntity {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
-  id: number;
+  id: string;
 
   @Column({
     type: 'enum',
@@ -63,6 +63,9 @@ export class Vehicule extends TimestampEntity {
   @Field(() => [Appointment])
   appointments: Appointment[];
 
+  // @Column()
+  // @Field(() => ID)
+  // clientID: number;
   @ManyToOne(() => Client, (client) => client.vehicules)
   @Field(() => Client)
   client: Client;

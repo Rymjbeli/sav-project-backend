@@ -16,7 +16,7 @@ import {
 export class User {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
-  id: number;
+  id: string;
 
   @Column({
     type: 'enum',
