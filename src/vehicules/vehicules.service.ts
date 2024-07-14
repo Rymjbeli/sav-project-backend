@@ -11,13 +11,14 @@ import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { Client } from '../users/entities/client.entity';
 import { UsersService } from '../users/users.service';
+import { ClientService } from "../users/client/client.service";
 
 @Injectable()
 export class VehiculesService {
   constructor(
     @InjectRepository(Vehicule)
     private vehiculeRepository: Repository<Vehicule>,
-    private usersService: UsersService,
+    private clientsService: ClientService,
   ) {}
   async create(createVehiculeInput: CreateVehiculeInput, client: Client) {
     if (createVehiculeInput.clientID === client.id) {
@@ -49,7 +50,7 @@ export class VehiculesService {
       user.role === 'admin' ||
       user.role === 'super_admin'
     ) {
-      return await this.vehiculeRepository.findOneBy({ id });
+      return vehicule;
     } else {
       throw new UnauthorizedException('Unauthorized');
     }
@@ -105,7 +106,7 @@ export class VehiculesService {
     }
   }
 
-  async findVehiculeOwner(id: number) {
-    return this.usersService.findOne(id);
+  async findVehiculeOwner(id: string) {
+    return this.clientsService.findOne(id);
   }
 }

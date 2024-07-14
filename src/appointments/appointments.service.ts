@@ -13,13 +13,14 @@ import { Client } from '../users/entities/client.entity';
 import { UsersService } from '../users/users.service';
 import { VehiculesService } from '../vehicules/vehicules.service';
 import { ServicesService } from '../services/services.service';
+import { ClientService } from "../users/client/client.service";
 
 @Injectable()
 export class AppointmentsService {
   constructor(
     @InjectRepository(Appointment)
     private appointmentRepository: Repository<Appointment>,
-    private usersService: UsersService,
+    private clientsService: ClientService,
     private vehiculesService: VehiculesService,
     private servicesService: ServicesService,
   ) {}
@@ -55,7 +56,7 @@ export class AppointmentsService {
       user.role === 'admin' ||
       user.role === 'super_admin'
     ) {
-      return await this.appointmentRepository.findOneBy({ id });
+      return appointment;
     } else {
       throw new UnauthorizedException('Unauthorized');
     }
@@ -115,15 +116,15 @@ export class AppointmentsService {
     }
   }
 
-  async findAppointmentOwner(clientID: number) {
-    return await this.usersService.findOne(clientID);
+  async findAppointmentOwner(clientID: string) {
+    return await this.clientsService.findOne(clientID);
   }
 
-  async findAppointmentVehicle(vehicleID: number, user: User) {
+  async findAppointmentVehicle(vehicleID: string, user: User) {
     return await this.vehiculesService.findOne(vehicleID, user);
   }
 
-  async findAppointmentService(serviceID: number, user: User) {
+  async findAppointmentService(serviceID: string, user: User) {
     return await this.servicesService.findOne(serviceID, user);
   }
 }
