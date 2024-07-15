@@ -53,28 +53,18 @@ export class AuthService {
 
   async login(
     credentials: LoginCredentialsDto,
-  ): Promise<{ accessToken: string; user: any }> {
+  ): Promise<{ accessToken: string; user: User }> {
     const { email, password } = credentials;
 
     const user = await this.userRepository.findOne({ where: { email } });
-    /*   const user = await this.userRepository
-         .createQueryBuilder('user')
-         .where('user.email = :email', { email })
-         .getOne();
-       */
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('Utilisateur non trouvé');
     }
 
     if (!bcrypt.compareSync(password, user.password)) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Coordonnées invalides');
     }
-
-    /*const hashedPassword = await bcrypt.hash(password, user.salt);
-    if (user.password !== hashedPassword) {
-      throw new NotFoundException('Password incorrect');
-    }*/
 
     if (!user.isVerified) {
       throw new UnauthorizedException('Adresse mail non vérifiée');
@@ -178,6 +168,25 @@ export class AuthService {
     }
   }
 
+  async resetVerificationToken(email: string): Promise<boolean> {
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) {
+      throw new NotFoundException('Utilisateur non trouvé');
+    }
+    // Generate a verification token
+    const verificationToken = uuidv4();
+
+    // Set the verification token expiry date to 7 days in the future
+    const verificationTokenExpiry = new Date();
+    verificationTokenExpiry.setDate(verificationTokenExpiry.getDate() + 7);
+
+    user.verificationToken = verificationToken;
+    user.verificationTokenExpiry = verificationTokenExpiry;
+
+    await this.userRepository.save(user);
+
+    return await this.mailService.sendVerificationEmail(user);
+  }
   async registerAdmin(userData: CreateUserInput): Promise<User> {
     const { password } = userData;
 
@@ -236,7 +245,7 @@ export class AuthService {
     }
 
     if (user.isVerified) {
-      throw new UnauthorizedException('Email already verified');
+      throw new UnauthorizedException('Compte déjà verifé');
     }
 
     // Update the user to be verified and clear the verification token
