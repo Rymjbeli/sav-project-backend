@@ -19,13 +19,14 @@ export class AuthGuard implements CanActivate {
       const authHeader = request.headers.authorization;
       const [bearer, token] = authHeader.split(' ');
 
-      if (bearer !== 'Bearer') throw new UnauthorizedException();
+      if (bearer !== 'Bearer')
+        throw new UnauthorizedException('Format de jeton invalide');
 
       request.user = this.jwtService.verify(token);
 
       return true;
     } catch (error) {
-      throw new UnauthorizedException('User not authenticated');
+      throw new UnauthorizedException('Utilisateur non authentifié');
     }
   }
 }
