@@ -86,6 +86,8 @@ export class User {
     const obj = Object.assign({}, this);
     delete obj.password;
     delete obj.salt;
+    delete obj.verificationToken;
+    delete obj.verificationTokenExpiry;
     return obj;
   }
 }
