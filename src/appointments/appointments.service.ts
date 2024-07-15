@@ -13,7 +13,8 @@ import { Client } from '../users/entities/client.entity';
 import { UsersService } from '../users/users.service';
 import { VehiculesService } from '../vehicules/vehicules.service';
 import { ServicesService } from '../services/services.service';
-import { ClientService } from "../users/client/client.service";
+import { ClientService } from '../users/client/client.service';
+import { UserRoleEnum } from '../enums/user-role.enum';
 
 @Injectable()
 export class AppointmentsService {
@@ -35,7 +36,10 @@ export class AppointmentsService {
   }
 
   async findAll(user: User) {
-    if (user.role === 'admin' || user.role === 'super_admin') {
+    if (
+      user.role === UserRoleEnum.ADMIN ||
+      user.role === UserRoleEnum.SUPERADMIN
+    ) {
       return this.appointmentRepository.find();
     } else {
       return await this.appointmentRepository.find({
@@ -53,8 +57,8 @@ export class AppointmentsService {
     }
     if (
       appointment.client?.id === user.id ||
-      user.role === 'admin' ||
-      user.role === 'super_admin'
+      user.role === UserRoleEnum.ADMIN ||
+      user.role === UserRoleEnum.SUPERADMIN
     ) {
       return appointment;
     } else {
@@ -73,8 +77,8 @@ export class AppointmentsService {
     }
     if (
       appointment.client?.id === user.id ||
-      user.role === 'admin' ||
-      user.role === 'super_admin'
+      user.role === UserRoleEnum.ADMIN ||
+      user.role === UserRoleEnum.SUPERADMIN
     ) {
       return await this.appointmentRepository.save({
         ...appointment,
@@ -89,8 +93,8 @@ export class AppointmentsService {
     const appointment = await this.findOne(id, user);
     if (appointment) {
       if (
-        user.role === 'admin' ||
-        user.role === 'super_admin' ||
+        user.role === UserRoleEnum.ADMIN ||
+        user.role === UserRoleEnum.SUPERADMIN ||
         appointment.client === user
       ) {
         return await this.appointmentRepository.softRemove(appointment);
@@ -101,7 +105,7 @@ export class AppointmentsService {
     throw new NotFoundException('Appointment not found');
   }
 
-  async restore(id: string, user: User) {
+  async restore(id: string) {
     const appointment = await this.appointmentRepository.findOne({
       where: { id },
       withDeleted: true,
@@ -109,11 +113,7 @@ export class AppointmentsService {
     if (!appointment) {
       throw new NotFoundException('Appointment not found');
     }
-    if (user.role === 'admin' || user.role === 'super_admin') {
-      return await this.appointmentRepository.recover(appointment);
-    } else {
-      throw new UnauthorizedException('Unauthorized');
-    }
+    return await this.appointmentRepository.recover(appointment);
   }
 
   async findAppointmentOwner(clientID: string) {
@@ -124,7 +124,7 @@ export class AppointmentsService {
     return await this.vehiculesService.findOne(vehicleID, user);
   }
 
-  async findAppointmentService(serviceID: string, user: User) {
-    return await this.servicesService.findOne(serviceID, user);
+  async findAppointmentService(serviceID: string) {
+    return await this.servicesService.findOne(serviceID);
   }
 }

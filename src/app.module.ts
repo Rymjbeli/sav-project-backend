@@ -12,6 +12,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { AuthModule } from './auth/auth.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { MailModule } from './mail/mail.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -34,7 +35,6 @@ import { MailModule } from './mail/mail.module';
       synchronize: true,
       debug: false,
     }),
-
     UsersModule,
     VehiculesModule,
     ServicesModule,

@@ -17,68 +17,44 @@ export class ServicesService {
     private serviceRepository: Repository<Service>,
   ) {}
   async create(createServiceInput: CreateServiceInput, user: User) {
-    if (user.role === 'admin' || user.role === 'super_admin') {
-      const newService =
-        await this.serviceRepository.create(createServiceInput);
-      return await this.serviceRepository.save(newService);
-    }
-    throw new UnauthorizedException('Unauthorized');
+    const newService = await this.serviceRepository.create(createServiceInput);
+    return await this.serviceRepository.save(newService);
   }
 
-  async findAll(user: User) {
-    if (user.role === 'admin' || user.role === 'super_admin') {
-      return await this.serviceRepository.find();
-    } else {
-      throw new UnauthorizedException('Unauthorized');
-    }
+  async findAll() {
+    return await this.serviceRepository.find();
   }
 
-  async findOne(id: string, user: User) {
-    if (user.role === 'admin' || user.role === 'super_admin') {
-      return await this.serviceRepository.findOneBy({ id });
-    } else {
-      throw new UnauthorizedException('Unauthorized');
-    }
+  async findOne(id: string) {
+    return await this.serviceRepository.findOneBy({ id });
   }
 
-  async update(updateServiceInput: UpdateServiceInput, user: User) {
+  async update(updateServiceInput: UpdateServiceInput) {
     const id = updateServiceInput.id;
     const service = await this.serviceRepository.findOneBy({ id });
     if (service) {
-      if (user.role === 'admin' || user.role === 'super_admin') {
-        return await this.serviceRepository.save({
-          ...service,
-          ...updateServiceInput,
-        });
-      } else {
-        throw new UnauthorizedException('Unauthorized');
-      }
+      return await this.serviceRepository.save({
+        ...service,
+        ...updateServiceInput,
+      });
     }
   }
 
-  async remove(id: string, user: User) {
-    const service = await this.findOne(id, user);
+  async remove(id: string) {
+    const service = await this.findOne(id);
     if (service) {
-      if (user.role === 'admin' || user.role === 'super_admin') {
-        return await this.serviceRepository.softRemove(service);
-      } else {
-        throw new UnauthorizedException('Unauthorized');
-      }
+      return await this.serviceRepository.softRemove(service);
     }
     throw new NotFoundException('Service not found');
   }
 
-  async restore(id: string, user: User) {
+  async restore(id: string) {
     const service = await this.serviceRepository.findOne({
       where: { id },
       withDeleted: true,
     });
     if (service) {
-      if (user.role === 'admin' || user.role === 'super_admin') {
-        return await this.serviceRepository.recover(service);
-      } else {
-        throw new UnauthorizedException('Unauthorized');
-      }
+      return await this.serviceRepository.recover(service);
     }
     throw new NotFoundException('Service not found');
   }

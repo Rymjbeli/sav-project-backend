@@ -30,5 +30,4 @@ export class UsersResolver {
   findOne(@Args('id', { type: () => Int }) id: number) {
     return this.usersService.findOne(id);
   }
-
 }

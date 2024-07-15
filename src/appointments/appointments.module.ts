@@ -6,6 +6,7 @@ import { Appointment } from './entities/appointment.entity';
 import { UsersModule } from '../users/users.module';
 import { VehiculesModule } from '../vehicules/vehicules.module';
 import { ServicesModule } from '../services/services.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { ServicesModule } from '../services/services.module';
     UsersModule,
     VehiculesModule,
     ServicesModule,
+    JwtModule,
   ],
   providers: [AppointmentsResolver, AppointmentsService],
 })

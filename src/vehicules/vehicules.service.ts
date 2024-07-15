@@ -11,7 +11,8 @@ import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { Client } from '../users/entities/client.entity';
 import { UsersService } from '../users/users.service';
-import { ClientService } from "../users/client/client.service";
+import { ClientService } from '../users/client/client.service';
+import { UserRoleEnum } from '../enums/user-role.enum';
 
 @Injectable()
 export class VehiculesService {
@@ -29,7 +30,10 @@ export class VehiculesService {
   }
 
   async findAll(user: User) {
-    if (user.role === 'admin' || user.role === 'super_admin') {
+    if (
+      user.role === UserRoleEnum.ADMIN ||
+      user.role === UserRoleEnum.SUPERADMIN
+    ) {
       return this.vehiculeRepository.find();
     } else {
       return await this.vehiculeRepository.find({
@@ -47,8 +51,8 @@ export class VehiculesService {
     }
     if (
       vehicule.client?.id === user.id ||
-      user.role === 'admin' ||
-      user.role === 'super_admin'
+      user.role === UserRoleEnum.ADMIN ||
+      user.role === UserRoleEnum.SUPERADMIN
     ) {
       return vehicule;
     } else {
@@ -79,8 +83,8 @@ export class VehiculesService {
     const vehicule = await this.findOne(id, user);
     if (vehicule) {
       if (
-        user.role === 'admin' ||
-        user.role === 'super_admin' ||
+        user.role === UserRoleEnum.ADMIN ||
+        user.role === UserRoleEnum.SUPERADMIN ||
         vehicule.client === user
       ) {
         return this.vehiculeRepository.softRemove(vehicule);
@@ -91,7 +95,7 @@ export class VehiculesService {
     throw new NotFoundException('Vehicle not found');
   }
 
-  async restore(id: string, user: User) {
+  async restore(id: string) {
     const vehicule = await this.vehiculeRepository.findOne({
       where: { id },
       withDeleted: true,
@@ -99,11 +103,7 @@ export class VehiculesService {
     if (!vehicule) {
       throw new NotFoundException('Vehicule not found');
     }
-    if (user.role === 'admin' || user.role === 'super_admin') {
-      return this.vehiculeRepository.recover(vehicule);
-    } else {
-      throw new UnauthorizedException('Unauthorized');
-    }
+    return this.vehiculeRepository.recover(vehicule);
   }
 
   async findVehiculeOwner(id: string) {

@@ -15,16 +15,24 @@ import { Client } from '../users/entities/client.entity';
 import { Vehicule } from '../vehicules/entities/vehicule.entity';
 import { Service } from '../services/entities/service.entity';
 import { User } from '../users/entities/user.entity';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '../guards/auth.guard';
+import { RolesGuard } from '../guards/roles.guard';
+import { Roles } from '../decorators/roles.decorator';
+import { UserRoleEnum } from '../enums/user-role.enum';
+import { CurrentUser } from '../decorators/current-user.decorator';
 
 @Resolver(() => Appointment)
 export class AppointmentsResolver {
   constructor(private readonly appointmentsService: AppointmentsService) {}
 
   @Mutation(() => Appointment)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.CLIENT)
   async createAppointment(
     @Args('createAppointmentInput')
     createAppointmentInput: CreateAppointmentInput,
-    client: Client,
+    @CurrentUser() client: Client,
   ) {
     return await this.appointmentsService.create(
       createAppointmentInput,
@@ -33,38 +41,44 @@ export class AppointmentsResolver {
   }
 
   @Query(() => [Appointment], { name: 'appointments' })
-  async findAll(user: User) {
+  @UseGuards(AuthGuard)
+  async findAll(@CurrentUser() user: User) {
     return await this.appointmentsService.findAll(user);
   }
 
   @Query(() => Appointment, { name: 'appointment' })
-  async findOne(@Args('id', { type: () => ID }) id: string, user: User) {
+  @UseGuards(AuthGuard)
+  async findOne(
+    @Args('id', { type: () => ID }) id: string,
+    @CurrentUser() user: User,
+  ) {
     return await this.appointmentsService.findOne(id, user);
   }
 
   @Mutation(() => Appointment)
+  @UseGuards(AuthGuard)
   async updateAppointment(
     @Args('updateAppointmentInput')
     updateAppointmentInput: UpdateAppointmentInput,
-    user: User,
+    @CurrentUser() user: User,
   ) {
     return await this.appointmentsService.update(updateAppointmentInput, user);
   }
 
   @Mutation(() => Appointment)
+  @UseGuards(AuthGuard)
   async removeAppointment(
     @Args('id', { type: () => ID }) id: string,
-    user: User,
+    @CurrentUser() user: User,
   ) {
     return await this.appointmentsService.remove(id, user);
   }
 
   @Mutation(() => Appointment)
-  async restoreAppointment(
-    @Args('id', { type: () => ID }) id: string,
-    user: User,
-  ) {
-    return await this.appointmentsService.restore(id, user);
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.SUPERADMIN, UserRoleEnum.ADMIN)
+  async restoreAppointment(@Args('id', { type: () => ID }) id: string) {
+    return await this.appointmentsService.restore(id);
   }
 
   @ResolveField(() => Client)
@@ -75,7 +89,10 @@ export class AppointmentsResolver {
   }
 
   @ResolveField(() => Vehicule)
-  async vehicule(@Parent() appointment: Appointment, user: User) {
+  async vehicule(
+    @Parent() appointment: Appointment,
+    @CurrentUser() user: User,
+  ) {
     return await this.appointmentsService.findAppointmentVehicle(
       appointment.vehicule?.id,
       user,
@@ -83,10 +100,9 @@ export class AppointmentsResolver {
   }
 
   @ResolveField(() => Service)
-  async service(@Parent() appointment: Appointment, user: User) {
+  async service(@Parent() appointment: Appointment) {
     return await this.appointmentsService.findAppointmentService(
       appointment.service?.id,
-      user,
     );
   }
 }
