@@ -1,20 +1,26 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Resolver, Subscription } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
 import { Auth } from './entities/auth.entity';
 import { LoginResponse } from './dto/login-response-type';
 import { LoginCredentialsDto } from './dto/login-credentials.input';
 import { User } from '../users/entities/user.entity';
 import { CreateUserInput } from '../users/dto/create-user.input';
-import { UseGuards } from '@nestjs/common';
+import { Inject, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../guards/auth.guard';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../decorators/roles.decorator';
 import { UserRoleEnum } from '../enums/user-role.enum';
 import { CurrentUser } from '../decorators/current-user.decorator';
+import { PubSub } from 'graphql-subscriptions';
+const pubSub = new PubSub();
 
 @Resolver(() => Auth)
 export class AuthResolver {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    // @Inject('PUB_SUB') private pubSub: PubSub,
+  ) {
+  }
 
   @Mutation(() => LoginResponse)
   async login(
@@ -38,6 +44,7 @@ export class AuthResolver {
   async registerClient(
     @Args('userData') userData: CreateUserInput,
   ): Promise<User> {
+    await pubSub.publish('userCreated', { userCreated: userData });
     return this.authService.registerClient(userData);
   }
 
@@ -60,5 +67,16 @@ export class AuthResolver {
   async verifyEmail(@Args('token') token: string): Promise<boolean> {
     await this.authService.verifyEmail(token);
     return true;
+  }
+  @Subscription(() => User,
+  //   {
+  //   filter: (payload, variables) => {
+  //     return payload.userCreated.email === variables.email;
+  //   },
+  //   resolve: (value) => value,
+  // }
+  )
+  userCreated() {
+    return pubSub.asyncIterator('userCreated');
   }
 }

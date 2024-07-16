@@ -4,7 +4,11 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import * as path from 'node:path';
 import { ValidationPipe } from '@nestjs/common';
 import * as helmet from 'helmet';
-
+import { createServer } from 'http';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import { WebSocketServer } from 'ws';
+import { useServer } from 'graphql-ws/lib/use/ws';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors({
@@ -19,6 +23,7 @@ async function bootstrap() {
       },
     }),
   );
+
   app.useStaticAssets(path.join(__dirname, '../uploads'));
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
   const port = process.env.PORT || 3000;

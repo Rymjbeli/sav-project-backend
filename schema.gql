@@ -1,0 +1,301 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type User {
+  id: ID!
+  role: String!
+  nom: String!
+  prenom: String!
+  email: String!
+  password: String!
+  cin: Int!
+  telephone: String!
+  adresse: String!
+  sexe: Sexe!
+  dateNaissance: DateTime!
+  emploi: String!
+  isVerified: Boolean!
+  verificationToken: String
+  verificationTokenExpiry: DateTime
+}
+
+enum Sexe {
+  MASCULIN
+  FEMININ
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Service {
+  id: ID!
+  name: String!
+  description: String!
+}
+
+type Appointment {
+  id: ID!
+  date: DateTime!
+  heure: String!
+  kilometrage: Int!
+  service: Service!
+  vehicule: Vehicule!
+  client: Client!
+}
+
+type Vehicule {
+  id: ID!
+  marque: Marque!
+  modele: String!
+  type: Type!
+  numChassis: String!
+  immatriculation: String!
+  annee: String!
+  couleur: String!
+  kilometrage: Int!
+  appointments: [Appointment!]!
+  client: Client!
+}
+
+enum Marque {
+  BMW
+  MERCEDES
+  AUDI
+  VOLKSWAGEN
+  PEUGEOT
+  RENAULT
+  CITROEN
+  FORD
+  TOYOTA
+  NISSAN
+  KIA
+  HYUNDAI
+  MAZDA
+  VOLVO
+  JEEP
+  SUZUKI
+  HONDA
+  FIAT
+  CHEVROLET
+  DODGE
+  JAGUAR
+  LAND_ROVER
+  MASERATI
+  MINI
+  MITSUBISHI
+  PORSCHE
+  SEAT
+  SKODA
+  SMART
+  SSANGYONG
+  SUBARU
+  TESLA
+  ALFA_ROMEO
+  ASTON_MARTIN
+  BENTLEY
+  BUGATTI
+  CADILLAC
+  CHERY
+  DAIHATSU
+  FERRARI
+  INFINITI
+  LAMBORGHINI
+  LANCIA
+  LOTUS
+  LEXUS
+  MCLAREN
+  ROLLS_ROYCE
+  AUTRES
+}
+
+enum Type {
+  SEDAN
+  SUV
+  VOITURE
+  MOTO
+  CAMION
+  CAMIONNETTE
+  BUS
+}
+
+type Client {
+  id: ID!
+  role: String!
+  nom: String!
+  prenom: String!
+  email: String!
+  password: String!
+  cin: Int!
+  telephone: String!
+  adresse: String!
+  sexe: Sexe!
+  dateNaissance: DateTime!
+  emploi: String!
+  isVerified: Boolean!
+  verificationToken: String
+  verificationTokenExpiry: DateTime
+  vehicules: [Vehicule!]!
+  appointments: [Appointment!]!
+}
+
+type LoginResponse {
+  accessToken: String!
+  user: User
+}
+
+type Mail {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+type Notification {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UserInput {
+  id: ID!
+  role: String!
+  nom: String!
+  prenom: String!
+  email: String!
+  password: String!
+  cin: Int!
+  telephone: String!
+  adresse: String!
+  sexe: Sexe!
+  dateNaissance: DateTime!
+  emploi: String!
+  isVerified: Boolean!
+  verificationToken: String
+  verificationTokenExpiry: DateTime
+}
+
+type Query {
+  user(id: Int!): User!
+  vehicules: [Vehicule!]!
+  vehicule(id: ID!): Vehicule!
+  services: [Service!]!
+  service(id: ID!): Service!
+  appointments: [Appointment!]!
+  appointment(id: ID!): Appointment!
+  notifications: [Notification!]!
+  notification(id: Int!): Notification!
+}
+
+type Mutation {
+  registerClient(userData: CreateUserInput!): User!
+  registerAdmin(userData: CreateUserInput!): User!
+  login(credentials: LoginCredentialsDto!): LoginResponse!
+  registerSuperAdmin(userData: CreateUserInput!): User!
+  resetVerificationToken(email: String!): Boolean!
+  verifyEmail(token: String!): Boolean!
+  sendVerificationEmail(user: UserInput!): Mail!
+  sendWelcomeEmail(user: UserInput!, password: String!): Mail!
+  createVehicule(createVehiculeInput: CreateVehiculeInput!): Vehicule!
+  updateVehicule(updateVehiculeInput: UpdateVehiculeInput!): Vehicule!
+  removeVehicule(id: ID!): Vehicule!
+  restoreVehicule(id: ID!): Vehicule!
+  createService(createServiceInput: CreateServiceInput!): Service!
+  updateService(updateServiceInput: UpdateServiceInput!): Service!
+  removeService(id: ID!): Service!
+  restoreService(id: ID!): Service!
+  createAppointment(createAppointmentInput: CreateAppointmentInput!): Appointment!
+  updateAppointment(updateAppointmentInput: UpdateAppointmentInput!): Appointment!
+  removeAppointment(id: ID!): Appointment!
+  restoreAppointment(id: ID!): Appointment!
+  createNotification(createNotificationInput: CreateNotificationInput!): Notification!
+  updateNotification(updateNotificationInput: UpdateNotificationInput!): Notification!
+  removeNotification(id: Int!): Notification!
+}
+
+input CreateUserInput {
+  email: String!
+  cin: Int!
+  password: String!
+  nom: String!
+  prenom: String!
+  telephone: String!
+  adresse: String!
+  sexe: Sexe!
+  dateNaissance: DateTime!
+  emploi: String!
+}
+
+input LoginCredentialsDto {
+  email: String!
+  password: String!
+}
+
+input CreateVehiculeInput {
+  marque: Marque!
+  modele: String!
+  type: Type!
+  numChassis: String!
+  immatriculation: String!
+  annee: String!
+  couleur: String!
+  kilometrage: Int!
+  clientID: ID!
+}
+
+input UpdateVehiculeInput {
+  marque: Marque
+  modele: String
+  type: Type
+  numChassis: String
+  immatriculation: String
+  annee: String
+  couleur: String
+  kilometrage: Int
+  clientID: ID
+  id: ID!
+}
+
+input CreateServiceInput {
+  name: String!
+  description: String!
+}
+
+input UpdateServiceInput {
+  name: String
+  description: String
+  id: ID!
+}
+
+input CreateAppointmentInput {
+  date: DateTime!
+  heure: String!
+  kilometrage: Int!
+  clientID: ID!
+  vehiculeID: ID!
+  serviceID: ID!
+}
+
+input UpdateAppointmentInput {
+  date: DateTime
+  heure: String
+  kilometrage: Int
+  clientID: ID
+  vehiculeID: ID
+  serviceID: ID
+  id: ID!
+}
+
+input CreateNotificationInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdateNotificationInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+type Subscription {
+  userCreated: User!
+}
