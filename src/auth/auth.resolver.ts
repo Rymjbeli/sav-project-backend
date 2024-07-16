@@ -12,15 +12,13 @@ import { Roles } from '../decorators/roles.decorator';
 import { UserRoleEnum } from '../enums/user-role.enum';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { PubSub } from 'graphql-subscriptions';
-const pubSub = new PubSub();
 
 @Resolver(() => Auth)
 export class AuthResolver {
   constructor(
     private readonly authService: AuthService,
-    // @Inject('PUB_SUB') private pubSub: PubSub,
-  ) {
-  }
+    @Inject('PUB_SUB') private pubSub: PubSub,
+  ) {}
 
   @Mutation(() => LoginResponse)
   async login(
@@ -44,7 +42,7 @@ export class AuthResolver {
   async registerClient(
     @Args('userData') userData: CreateUserInput,
   ): Promise<User> {
-    await pubSub.publish('userCreated', { userCreated: userData });
+    await this.pubSub.publish('userCreated', { userCreated: userData });
     return this.authService.registerClient(userData);
   }
 
@@ -67,16 +65,5 @@ export class AuthResolver {
   async verifyEmail(@Args('token') token: string): Promise<boolean> {
     await this.authService.verifyEmail(token);
     return true;
-  }
-  @Subscription(() => User,
-  //   {
-  //   filter: (payload, variables) => {
-  //     return payload.userCreated.email === variables.email;
-  //   },
-  //   resolve: (value) => value,
-  // }
-  )
-  userCreated() {
-    return pubSub.asyncIterator('userCreated');
   }
 }

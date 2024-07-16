@@ -15,13 +15,12 @@ export class ServicesResolver {
   constructor(private readonly servicesService: ServicesService) {}
 
   @Mutation(() => Service)
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRoleEnum.SUPERADMIN, UserRoleEnum.ADMIN)
+  @UseGuards(AuthGuard)
+  // @Roles(UserRoleEnum.SUPERADMIN, UserRoleEnum.ADMIN)
   createService(
     @Args('createServiceInput') createServiceInput: CreateServiceInput,
-    user: User,
   ) {
-    return this.servicesService.create(createServiceInput, user);
+    return this.servicesService.create(createServiceInput);
   }
 
   @Query(() => [Service], { name: 'services' })

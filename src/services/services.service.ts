@@ -16,7 +16,7 @@ export class ServicesService {
     @InjectRepository(Service)
     private serviceRepository: Repository<Service>,
   ) {}
-  async create(createServiceInput: CreateServiceInput, user: User) {
+  async create(createServiceInput: CreateServiceInput) {
     const newService = await this.serviceRepository.create(createServiceInput);
     return await this.serviceRepository.save(newService);
   }

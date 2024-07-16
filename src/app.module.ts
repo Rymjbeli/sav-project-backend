@@ -21,11 +21,12 @@ import { PubSubModule } from './pub-sub/pub-sub.module';
       isGlobal: true,
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
+      installSubscriptionHandlers: true,
       driver: ApolloDriver,
       autoSchemaFile: true,
-      subscriptions: {
-        'graphql-ws': true,
-      },
+      // subscriptions: {
+      //   'graphql-ws': true,
+      // },
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
