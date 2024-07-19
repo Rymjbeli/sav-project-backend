@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { CreateUserInput } from './dto/create-user.input';
-import { UpdateUserInput } from './dto/update-user.input';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -44,20 +45,6 @@ export class UsersService {
     const token = await bcrypt.hash(user.email, user.salt);
     user.resetPasswordToken = token;
 
-  async findOne(id: string, user: User) {
-    const fetchedUser = await this.userRepository.findOneBy({ id });
-    if (!fetchedUser) {
-      throw new NotFoundException('User not found');
-    }
-    if (
-      +id === +user.id ||
-      user.role === UserRoleEnum.ADMIN ||
-      user.role === UserRoleEnum.SUPERADMIN
-    ) {
-      return fetchedUser;
-    } else {
-      throw new UnauthorizedException('Unauthorized');
-    }
     const resetTokenExpiry = new Date();
     resetTokenExpiry.setDate(resetTokenExpiry.getDate() + 3);
     user.resetTokenExpiry = resetTokenExpiry;
@@ -72,7 +59,9 @@ export class UsersService {
     password: string,
     confirmPassword: string,
   ): Promise<boolean> {
-    const user = await this.userRepository.findOne({ where: { resetPasswordToken: token } });
+    const user = await this.userRepository.findOne({
+      where: { resetPasswordToken: token },
+    });
     if (!user) {
       throw new Error('Token invalide');
     }
@@ -91,11 +80,20 @@ export class UsersService {
     await this.userRepository.save(user);
     return true;
   }
-  findAll() {
-    return `This action returns all users`;
-  }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string, user: User) {
+    const fetchedUser = await this.userRepository.findOneBy({ id });
+    if (!fetchedUser) {
+      throw new NotFoundException('User not found');
+    }
+    if (
+      +id === +user.id ||
+      user.role === UserRoleEnum.ADMIN ||
+      user.role === UserRoleEnum.SUPERADMIN
+    ) {
+      return fetchedUser;
+    } else {
+      throw new UnauthorizedException('Unauthorized');
+    }
   }
 }
