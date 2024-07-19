@@ -16,17 +16,30 @@ export class UsersResolver {
   ) {}
 
   @Mutation(() => User)
-  async registerClient(
-    @Args('userData') userData: CreateUserInput,
-  ): Promise<User> {
-    return this.authService.registerClient(userData);
+  async changePassword(
+    @CurrentUser() user: User,
+    @Args('password') password: string,
+    @Args('confirmPassword') confirmPassword: string,
+  ) {
+    return this.usersService.changePassword(user, password, confirmPassword);
   }
 
-  @Mutation(() => User)
-  async registerAdmin(
-    @Args('userData') userData: CreateUserInput,
-  ): Promise<User> {
-    return this.authService.registerAdmin(userData);
+  @Mutation(() => Boolean)
+  async forgotPassword(@Args('email') email: string) {
+    return await this.usersService.forgotPassword(email);
+  }
+
+  @Mutation(() => Boolean)
+  async resetPassword(
+    @Args('token') token: string,
+    @Args('password') password: string,
+    @Args('confirmPassword') confirmPassword: string,
+  ) {
+    return await this.usersService.resetPassword(
+      token,
+      password,
+      confirmPassword,
+    );
   }
 
   @Query(() => User, { name: 'user' })

@@ -39,6 +39,21 @@ export class MailService {
     }
   }
 
+  async sendResetPasswordEmail(email: string, token: string) {
+    try {
+      const subject = 'Reset Password';
+      const content = this.createResetPasswordMailContent(token);
+      await this.mailerService.sendMail({
+        to: email,
+        subject: subject,
+        html: content,
+      });
+      return true;
+    } catch (error) {
+      console.error('Error sending email:', error);
+      return false;
+    }
+  }
   createVerificationMailContent(user: User) {
     const url = `http://localhost:3000/verify?token=${user.verificationToken}`;
 
@@ -54,6 +69,16 @@ export class MailService {
     <p> <strong> Email: ${user.email}</strong></p>
     <p> <strong> Password: ${password}</strong></p>
     <p>We recommend that you change your password for more security</p>
+    <p>Best regards,</p>`;
+  }
+
+  createResetPasswordMailContent(token: string) {
+    const url = `http://localhost:3000/reset-password?token=${token}`;
+
+    return `<p>Dear User,</p>
+    <p>We received a request to reset your password. Click the link to reset your password:</p>
+    <p> <a href="${url}"> ${url}</a></p>
+    <p>If you didn't request a password reset, you can ignore this email.</p>
     <p>Best regards,</p>`;
   }
 }
