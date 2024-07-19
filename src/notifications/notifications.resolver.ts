@@ -1,13 +1,58 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import {
+  Args,
+  ID,
+  Int,
+  Mutation,
+  Query,
+  Resolver,
+  Subscription,
+} from '@nestjs/graphql';
 import { NotificationsService } from './notifications.service';
 import { Notification } from './entities/notification.entity';
 import { CreateNotificationInput } from './dto/create-notification.input';
 import { UpdateNotificationInput } from './dto/update-notification.input';
+import { Inject, UseGuards } from '@nestjs/common';
+import { PubSub } from 'graphql-subscriptions';
+import { UserRoleEnum } from '../enums/user-role.enum';
+import { AuthGuard } from '../guards/auth.guard';
+import { CurrentUser } from '../decorators/current-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @Resolver(() => Notification)
 export class NotificationsResolver {
-  constructor(private readonly notificationsService: NotificationsService) {}
+  constructor(
+    private readonly notificationsService: NotificationsService,
+    @Inject('PUB_SUB') private pubSub: PubSub,
+  ) {}
 
+  @Subscription(() => Notification, {
+    filter: (payload, variables) => {
+      return (
+        variables?.role === UserRoleEnum.ADMIN ||
+        variables?.role === UserRoleEnum.SUPERADMIN
+      );
+    },
+  })
+  appointmentCreated(@Args('role') role: string) {
+    return this.pubSub.asyncIterator('appointmentCreated');
+  }
+  @Subscription(() => Notification, {
+    filter: (payload, variables) => {
+      console.log('payload', payload);
+      return (
+        payload?.appointmentUpdated?.receiver?.id === variables?.id ||
+        (!payload?.appointmentUpdated?.receiver?.id &&
+          (variables?.role === UserRoleEnum.ADMIN ||
+            variables?.role === UserRoleEnum.SUPERADMIN))
+      );
+    },
+  })
+  appointmentUpdated(
+    @Args('role') role: UserRoleEnum,
+    @Args('id', { nullable: true }) id?: number,
+  ) {
+    return this.pubSub.asyncIterator('appointmentUpdated');
+  }
   @Mutation(() => Notification)
   createNotification(
     @Args('createNotificationInput')
@@ -17,28 +62,26 @@ export class NotificationsResolver {
   }
 
   @Query(() => [Notification], { name: 'notifications' })
-  findAll() {
-    return this.notificationsService.findAll();
+  @UseGuards(AuthGuard)
+  findAll(@CurrentUser() user: User) {
+    return this.notificationsService.findAll(user);
   }
 
   @Query(() => Notification, { name: 'notification' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.notificationsService.findOne(id);
-  }
-
-  @Mutation(() => Notification)
-  updateNotification(
-    @Args('updateNotificationInput')
-    updateNotificationInput: UpdateNotificationInput,
+  @UseGuards(AuthGuard)
+  findOne(
+    @Args('id', { type: () => ID }) id: string,
+    @CurrentUser() user: User,
   ) {
-    return this.notificationsService.update(
-      updateNotificationInput.id,
-      updateNotificationInput,
-    );
+    return this.notificationsService.findOne(id, user);
   }
 
   @Mutation(() => Notification)
-  removeNotification(@Args('id', { type: () => Int }) id: number) {
-    return this.notificationsService.remove(id);
+  @UseGuards(AuthGuard)
+  removeNotification(
+    @Args('id', { type: () => ID }) id: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.notificationsService.remove(id, user);
   }
 }

@@ -1,7 +1,17 @@
-import { InputType, Int, Field } from '@nestjs/graphql';
+import { InputType, Field } from '@nestjs/graphql';
+import { IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
+import { NotificationEnum } from '../../enums/notification.enum';
 
 @InputType()
 export class CreateNotificationInput {
-  @Field(() => Int, { description: 'Example field (placeholder)' })
-  exampleField: number;
+  @Field(() => NotificationEnum)
+  @IsEnum(NotificationEnum)
+  @IsNotEmpty()
+  type: NotificationEnum;
+  @Field(() => String)
+  @IsNotEmpty()
+  content: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  receiverID!: string;
 }
