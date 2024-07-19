@@ -10,10 +10,11 @@ import {
 } from 'typeorm';
 import { Appointment } from '../../appointments/entities/appointment.entity';
 import { Client } from '../../users/entities/client.entity';
+import { TimestampEntity } from '../../shared/entities/timestamp';
 
 @Entity()
 @ObjectType()
-export class Vehicule {
+export class Vehicule extends TimestampEntity {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
   id: string;
@@ -23,8 +24,8 @@ export class Vehicule {
     enum: MarqueEnum,
     default: MarqueEnum.AUDI,
   })
-  @Field(() => MarqueEnum)
-  marque: MarqueEnum;
+  @Field(() => String)
+  marque: string;
 
   @Column()
   @Field(() => String)
@@ -35,8 +36,8 @@ export class Vehicule {
     enum: TypeEnum,
     default: TypeEnum.VOITURE,
   })
-  @Field(() => TypeEnum)
-  type: TypeEnum;
+  @Field(() => String)
+  type: string;
 
   @Column()
   @Field(() => String)
@@ -62,6 +63,9 @@ export class Vehicule {
   @Field(() => [Appointment])
   appointments: Appointment[];
 
+  // @Column()
+  // @Field(() => ID)
+  // clientID: number;
   @ManyToOne(() => Client, (client) => client.vehicules)
   @Field(() => Client)
   client: Client;

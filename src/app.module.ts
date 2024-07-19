@@ -12,6 +12,8 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { AuthModule } from './auth/auth.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { MailModule } from './mail/mail.module';
+import { PubSub } from 'graphql-subscriptions';
+import { PubSubModule } from './pub-sub/pub-sub.module';
 
 @Module({
   imports: [
@@ -19,8 +21,12 @@ import { MailModule } from './mail/mail.module';
       isGlobal: true,
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
+      installSubscriptionHandlers: true,
       driver: ApolloDriver,
       autoSchemaFile: true,
+      // subscriptions: {
+      //   'graphql-ws': true,
+      // },
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -41,8 +47,15 @@ import { MailModule } from './mail/mail.module';
     AuthModule,
     NotificationsModule,
     MailModule,
+    PubSubModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: 'PUB_SUB',
+      useValue: new PubSub(),
+    },
+  ],
 })
 export class AppModule {}

@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { forwardRef, Global, Module } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersResolver } from './users.resolver';
 import { AuthModule } from '../auth/auth.module';
@@ -11,10 +11,11 @@ import { AdminResolver } from './admin/admin.resolver';
 import { ClientResolver } from './client/client.resolver';
 import { AdminService } from './admin/admin.service';
 import { ClientService } from './client/client.service';
-
+import { Client } from './entities/client.entity';
+@Global()
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, SuperAdmin]),
+    TypeOrmModule.forFeature([User, SuperAdmin, Client]),
     forwardRef(() => AuthModule),
   ],
   providers: [
@@ -27,5 +28,6 @@ import { ClientService } from './client/client.service';
     ClientResolver,
     ClientService,
   ],
+  exports: [UsersService, ClientService, AdminService, SuperAdminService],
 })
 export class UsersModule {}
