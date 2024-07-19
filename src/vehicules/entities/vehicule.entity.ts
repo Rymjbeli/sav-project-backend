@@ -24,8 +24,8 @@ export class Vehicule extends TimestampEntity {
     enum: MarqueEnum,
     default: MarqueEnum.AUDI,
   })
-  @Field(() => MarqueEnum)
-  marque: MarqueEnum;
+  @Field(() => String)
+  marque: string;
 
   @Column()
   @Field(() => String)
@@ -36,8 +36,8 @@ export class Vehicule extends TimestampEntity {
     enum: TypeEnum,
     default: TypeEnum.VOITURE,
   })
-  @Field(() => TypeEnum)
-  type: TypeEnum;
+  @Field(() => String)
+  type: string;
 
   @Column()
   @Field(() => String)

@@ -7,7 +7,7 @@ import * as helmet from 'helmet';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors({
-    origin: [process.env.FRONTEND_PORT_1, process.env.FRONTEND_PORT_2],
+    origin: '*',
     credentials: true,
   });
   // app.use(

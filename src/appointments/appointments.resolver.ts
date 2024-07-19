@@ -82,9 +82,10 @@ export class AppointmentsResolver {
   }
 
   @ResolveField(() => Client)
-  async client(@Parent() appointment: Appointment) {
+  async client(@Parent() appointment: Appointment, @CurrentUser() user: User) {
     return await this.appointmentsService.findAppointmentOwner(
       appointment.client?.id,
+      user,
     );
   }
 

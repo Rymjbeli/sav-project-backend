@@ -4,6 +4,8 @@ import { Service } from '../../services/entities/service.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Client } from '../../users/entities/client.entity';
 import { TimestampEntity } from '../../shared/entities/timestamp';
+import { SexeEnum } from '../../enums/sexe.enum';
+import { AppointmentStatusEnum } from '../../enums/appointment-status.enum';
 
 @Entity()
 @ObjectType()
@@ -36,15 +38,11 @@ export class Appointment extends TimestampEntity {
   @Field(() => Client)
   client: Client;
 
-  // @Column()
-  // @Field(() => ID)
-  // clientID: number;
-  //
-  // @Column()
-  // @Field(() => ID)
-  // vehiculeID: number;
-  //
-  // @Column()
-  // @Field(() => ID)
-  // serviceID: number;
+  @Column({
+    type: 'enum',
+    enum: AppointmentStatusEnum,
+    default: AppointmentStatusEnum.PENDING,
+  })
+  @Field(() => String)
+  etat: string;
 }

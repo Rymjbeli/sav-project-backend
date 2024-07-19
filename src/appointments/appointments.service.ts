@@ -1,4 +1,5 @@
 import {
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -10,11 +11,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { Client } from '../users/entities/client.entity';
-import { UsersService } from '../users/users.service';
 import { VehiculesService } from '../vehicules/vehicules.service';
 import { ServicesService } from '../services/services.service';
 import { ClientService } from '../users/client/client.service';
 import { UserRoleEnum } from '../enums/user-role.enum';
+import { Vehicule } from '../vehicules/entities/vehicule.entity';
+import { Service } from '../services/entities/service.entity';
+import { PubSub } from 'graphql-subscriptions';
+import { CreateNotificationInput } from '../notifications/dto/create-notification.input';
+import { NotificationEnum } from '../enums/notification.enum';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class AppointmentsService {
@@ -24,12 +30,39 @@ export class AppointmentsService {
     private clientsService: ClientService,
     private vehiculesService: VehiculesService,
     private servicesService: ServicesService,
+    private notificationService: NotificationsService,
+    @Inject('PUB_SUB') private pubSub: PubSub,
   ) {}
   async create(createAppointmentInput: CreateAppointmentInput, client: Client) {
-    if (createAppointmentInput.clientID === client.id) {
-      const newAppointment = this.appointmentRepository.create(
+    if (+createAppointmentInput.clientID === +client.id) {
+      const owner = await this.findAppointmentOwner(
+        createAppointmentInput.clientID,
+        client,
+      );
+      const vehicule = await this.findAppointmentVehicle(
+        createAppointmentInput.vehiculeID,
+        client,
+      );
+      const service = await this.findAppointmentService(
+        createAppointmentInput.serviceID,
+      );
+
+      const newAppointment = await this.appointmentRepository.create(
         createAppointmentInput,
       );
+
+      newAppointment.client = owner;
+      newAppointment.vehicule = vehicule;
+      newAppointment.service = service;
+      console.log('newAppointment', newAppointment);
+
+      const notification =
+        await this.notificationService.createNotifForNewAppointment(
+          newAppointment,
+        );
+      await this.pubSub.publish('appointmentCreated', {
+        appointmentCreated: notification,
+      });
       return await this.appointmentRepository.save(newAppointment);
     }
     throw new UnauthorizedException('Unauthorized');
@@ -44,14 +77,17 @@ export class AppointmentsService {
     } else {
       return await this.appointmentRepository.find({
         where: {
-          client: user as Client,
+          client: { id: user.id } as Client,
         },
       });
     }
   }
 
   async findOne(id: string, user: User) {
-    const appointment = await this.appointmentRepository.findOneBy({ id });
+    const appointment = await this.appointmentRepository.findOne({
+      where: { id },
+      relations: ['client'],
+    });
     if (!appointment) {
       throw new NotFoundException('Appointment not found');
     }
@@ -70,7 +106,7 @@ export class AppointmentsService {
     const id = updateAppointmentInput.id;
     const appointment = await this.appointmentRepository.findOne({
       where: { id },
-      relations: ['client'],
+      relations: ['client', 'service'],
     });
     if (!appointment) {
       throw new NotFoundException('Appointment not found');
@@ -80,6 +116,14 @@ export class AppointmentsService {
       user.role === UserRoleEnum.ADMIN ||
       user.role === UserRoleEnum.SUPERADMIN
     ) {
+      const notification =
+        await this.notificationService.createNotifForUpdatedAppointment(
+          appointment,
+          user,
+        );
+      await this.pubSub.publish('appointmentUpdated', {
+        appointmentUpdated: notification,
+      });
       return await this.appointmentRepository.save({
         ...appointment,
         ...updateAppointmentInput,
@@ -95,7 +139,7 @@ export class AppointmentsService {
       if (
         user.role === UserRoleEnum.ADMIN ||
         user.role === UserRoleEnum.SUPERADMIN ||
-        appointment.client === user
+        appointment.client?.id === user?.id
       ) {
         return await this.appointmentRepository.softRemove(appointment);
       } else {
@@ -116,8 +160,8 @@ export class AppointmentsService {
     return await this.appointmentRepository.recover(appointment);
   }
 
-  async findAppointmentOwner(clientID: string) {
-    return await this.clientsService.findOne(clientID);
+  async findAppointmentOwner(clientID: string, user: User) {
+    return await this.clientsService.findOne(clientID, user);
   }
 
   async findAppointmentVehicle(vehicleID: string, user: User) {

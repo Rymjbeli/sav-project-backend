@@ -22,8 +22,9 @@ export class VehiculesService {
     private clientsService: ClientService,
   ) {}
   async create(createVehiculeInput: CreateVehiculeInput, client: Client) {
-    if (createVehiculeInput.clientID === client.id) {
+    if (+createVehiculeInput.clientID === +client.id) {
       const newVehicule = this.vehiculeRepository.create(createVehiculeInput);
+      newVehicule.client = { id: createVehiculeInput.clientID } as Client;
       return await this.vehiculeRepository.save(newVehicule);
     }
     throw new UnauthorizedException('Unauthorized');
@@ -38,26 +39,29 @@ export class VehiculesService {
     } else {
       return await this.vehiculeRepository.find({
         where: {
-          client: user as Client,
+          client: { id: user.id } as Client,
         },
       });
     }
   }
 
   async findOne(id: string, user: User) {
-    const vehicule = await this.vehiculeRepository.findOneBy({ id });
+    const vehicule = await this.vehiculeRepository.findOne({
+      where: { id },
+      relations: ['client'],
+    });
     if (!vehicule) {
       throw new NotFoundException('Vehicule not found');
     }
-    if (
-      vehicule.client?.id === user.id ||
-      user.role === UserRoleEnum.ADMIN ||
-      user.role === UserRoleEnum.SUPERADMIN
-    ) {
+    // if (
+    //   +vehicule.client?.id === +user.id ||
+    //   user.role === UserRoleEnum.ADMIN ||
+    //   user.role === UserRoleEnum.SUPERADMIN
+    // ) {
       return vehicule;
-    } else {
-      throw new UnauthorizedException('Unauthorized');
-    }
+    // } else {
+    //   throw new UnauthorizedException('Unauthorized');
+    // }
   }
 
   async update(updateVehiculeInput: UpdateVehiculeInput, client: Client) {
@@ -81,11 +85,13 @@ export class VehiculesService {
 
   async remove(id: string, user: User) {
     const vehicule = await this.findOne(id, user);
+    console.log(vehicule);
+    console.log(user);
     if (vehicule) {
       if (
         user.role === UserRoleEnum.ADMIN ||
         user.role === UserRoleEnum.SUPERADMIN ||
-        vehicule.client === user
+        vehicule.client?.id === user?.id
       ) {
         return this.vehiculeRepository.softRemove(vehicule);
       } else {
@@ -106,7 +112,7 @@ export class VehiculesService {
     return this.vehiculeRepository.recover(vehicule);
   }
 
-  async findVehiculeOwner(id: string) {
-    return this.clientsService.findOne(id);
+  async findVehiculeOwner(id: string, user: User) {
+    return this.clientsService.findOne(id, user);
   }
 }

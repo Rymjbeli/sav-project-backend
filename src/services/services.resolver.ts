@@ -9,14 +9,15 @@ import { AuthGuard } from '../guards/auth.guard';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../decorators/roles.decorator';
 import { UserRoleEnum } from '../enums/user-role.enum';
+import { CurrentUser } from '../decorators/current-user.decorator';
 
 @Resolver(() => Service)
 export class ServicesResolver {
   constructor(private readonly servicesService: ServicesService) {}
 
   @Mutation(() => Service)
-  @UseGuards(AuthGuard)
-  // @Roles(UserRoleEnum.SUPERADMIN, UserRoleEnum.ADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.SUPERADMIN, UserRoleEnum.ADMIN)
   createService(
     @Args('createServiceInput') createServiceInput: CreateServiceInput,
   ) {
@@ -24,7 +25,7 @@ export class ServicesResolver {
   }
 
   @Query(() => [Service], { name: 'services' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   findAll() {
     return this.servicesService.findAll();
   }

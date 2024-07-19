@@ -36,7 +36,7 @@ export class VehiculesResolver {
   }
   @UseGuards(AuthGuard)
   @Query(() => [Vehicule], { name: 'vehicules' })
-  findAll(user: User) {
+  findAll(@CurrentUser() user: User) {
     return this.vehiculesService.findAll(user);
   }
 
@@ -76,7 +76,7 @@ export class VehiculesResolver {
   }
 
   @ResolveField(() => Client)
-  client(@Parent() vehicule: Vehicule) {
-    return this.vehiculesService.findVehiculeOwner(vehicule.client?.id);
+  client(@Parent() vehicule: Vehicule, @CurrentUser() user: User) {
+    return this.vehiculesService.findVehiculeOwner(vehicule.client?.id, user);
   }
 }

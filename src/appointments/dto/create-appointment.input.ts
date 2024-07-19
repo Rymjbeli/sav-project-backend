@@ -1,5 +1,7 @@
 import { InputType, Int, Field, ID } from '@nestjs/graphql';
-import { IsNotEmpty } from 'class-validator';
+import { IsEnum, IsNotEmpty } from 'class-validator';
+import { AppointmentStatusEnum } from '../../enums/appointment-status.enum';
+import { TypeEnum } from '../../enums/type.enum';
 
 @InputType()
 export class CreateAppointmentInput {
@@ -21,4 +23,8 @@ export class CreateAppointmentInput {
   @IsNotEmpty()
   @Field(() => ID)
   serviceID: string;
+  @IsNotEmpty()
+  @IsEnum(AppointmentStatusEnum)
+  @Field(() => AppointmentStatusEnum)
+  etat: string;
 }

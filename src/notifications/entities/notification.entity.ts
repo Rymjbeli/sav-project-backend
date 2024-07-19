@@ -3,10 +3,12 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { TimestampEntity } from '../../shared/entities/timestamp';
 import { NotificationEnum } from '../../enums/notification.enum';
 import { User } from '../../users/entities/user.entity';
+import { TypeEnum } from '../../enums/type.enum';
+import { UserRoleEnum } from '../../enums/user-role.enum';
 
 @ObjectType()
 @Entity()
-export class Notification extends TimestampEntity{
+export class Notification extends TimestampEntity {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
   id: string;
@@ -19,15 +21,15 @@ export class Notification extends TimestampEntity{
   @Field(() => NotificationEnum)
   type: NotificationEnum;
 
-  @Column({ nullable: true })
-  @Field({ nullable: true })
+  @Column()
+  @Field(() => String)
   content!: string;
 
   @ManyToOne(() => User)
   @Field({ nullable: true })
   receiver!: User;
 
-  @ManyToOne(() => User)
-  @Field({ nullable: true })
-  sender!: User;
+  // @ManyToOne(() => User)
+  // @Field({ nullable: true })
+  // sender!: User;
 }

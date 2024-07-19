@@ -41,7 +41,7 @@ export class AuthService {
   ) {}
 
   private generateAccessToken(user: User): string {
-    const payload = { userID: user.id, email: user.email, role: user.role };
+    const payload = { id: user.id, email: user.email, role: user.role };
     const tokenLife = this.configService.get('ACCESS_TOKEN_EXPIRATION');
     const expiresIn = isNaN(+tokenLife) ? tokenLife : +tokenLife;
     return this.jwtService.sign(payload, {
