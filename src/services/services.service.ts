@@ -29,8 +29,7 @@ export class ServicesService {
     return await this.serviceRepository.findOneBy({ id });
   }
 
-  async update(updateServiceInput: UpdateServiceInput) {
-    const id = updateServiceInput.id;
+  async update(id:string, updateServiceInput: UpdateServiceInput) {
     const service = await this.serviceRepository.findOneBy({ id });
     if (service) {
       return await this.serviceRepository.save({

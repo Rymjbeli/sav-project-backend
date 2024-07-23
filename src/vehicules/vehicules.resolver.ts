@@ -20,21 +20,22 @@ import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../decorators/roles.decorator';
 import { UserRoleEnum } from '../enums/user-role.enum';
 import { CurrentUser } from '../decorators/current-user.decorator';
+import { Appointment } from '../appointments/entities/appointment.entity';
 
 @Resolver(() => Vehicule)
 export class VehiculesResolver {
   constructor(private readonly vehiculesService: VehiculesService) {}
 
   @Mutation(() => Vehicule)
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRoleEnum.CLIENT)
+  // @UseGuards(AuthGuard, RolesGuard)
+  // @Roles(UserRoleEnum.CLIENT)
   createVehicule(
     @Args('createVehiculeInput') createVehiculeInput: CreateVehiculeInput,
     @CurrentUser() client: Client,
   ) {
     return this.vehiculesService.create(createVehiculeInput, client);
   }
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Query(() => [Vehicule], { name: 'vehicules' })
   findAll(@CurrentUser() user: User) {
     return this.vehiculesService.findAll(user);
@@ -54,13 +55,14 @@ export class VehiculesResolver {
   @Roles(UserRoleEnum.CLIENT)
   updateVehicule(
     @Args('updateVehiculeInput') updateVehiculeInput: UpdateVehiculeInput,
+    @Args('id', { type: () => ID }) id: string,
     @CurrentUser() client: Client,
   ) {
-    return this.vehiculesService.update(updateVehiculeInput, client);
+    return this.vehiculesService.update(id, updateVehiculeInput, client);
   }
 
   @Mutation(() => Vehicule)
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   removeVehicule(
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
@@ -78,5 +80,14 @@ export class VehiculesResolver {
   @ResolveField(() => Client)
   client(@Parent() vehicule: Vehicule, @CurrentUser() user: User) {
     return this.vehiculesService.findVehiculeOwner(vehicule.client?.id, user);
+  }
+  @ResolveField(() => [Appointment])
+  appointments(@Parent() vehicule: Vehicule) {
+    return this.vehiculesService.findVehiculeAppointments(vehicule.id);
+  }
+  @Query(() => Number, { name: 'numberOfVehicules' })
+  // @UseGuards(AuthGuard)
+  numberOfVehicules() {
+    return this.vehiculesService.numberOfVehicules();
   }
 }

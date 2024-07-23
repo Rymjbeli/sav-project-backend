@@ -69,18 +69,18 @@ export class AppointmentsService {
   }
 
   async findAll(user: User) {
-    if (
-      user.role === UserRoleEnum.ADMIN ||
-      user.role === UserRoleEnum.SUPERADMIN
-    ) {
+    // if (
+    //   user.role === UserRoleEnum.ADMIN ||
+    //   user.role === UserRoleEnum.SUPERADMIN
+    // ) {
       return this.appointmentRepository.find();
-    } else {
-      return await this.appointmentRepository.find({
-        where: {
-          client: { id: user.id } as Client,
-        },
-      });
-    }
+    // } else {
+    //   return await this.appointmentRepository.find({
+    //     where: {
+    //       client: { id: user.id } as Client,
+    //     },
+    //   });
+    // }
   }
 
   async findOne(id: string, user: User) {
@@ -91,31 +91,35 @@ export class AppointmentsService {
     if (!appointment) {
       throw new NotFoundException('Appointment not found');
     }
-    if (
-      appointment.client?.id === user.id ||
-      user.role === UserRoleEnum.ADMIN ||
-      user.role === UserRoleEnum.SUPERADMIN
-    ) {
+    // if (
+    //   appointment.client?.id === user.id ||
+    //   user.role === UserRoleEnum.ADMIN ||
+    //   user.role === UserRoleEnum.SUPERADMIN
+    // ) {
       return appointment;
-    } else {
-      throw new UnauthorizedException('Unauthorized');
-    }
+    // } else {
+    //   throw new UnauthorizedException('Unauthorized');
+    // }
   }
 
-  async update(updateAppointmentInput: UpdateAppointmentInput, user: User) {
-    const id = updateAppointmentInput.id;
+  async update(
+    id: string,
+    updateAppointmentInput: UpdateAppointmentInput,
+    user: User,
+  ) {
     const appointment = await this.appointmentRepository.findOne({
       where: { id },
       relations: ['client', 'service'],
     });
+    console.log('appointment', appointment);
     if (!appointment) {
       throw new NotFoundException('Appointment not found');
     }
-    if (
-      appointment.client?.id === user.id ||
-      user.role === UserRoleEnum.ADMIN ||
-      user.role === UserRoleEnum.SUPERADMIN
-    ) {
+    // if (
+    //   appointment.client?.id === user.id ||
+    //   user.role === UserRoleEnum.ADMIN ||
+    //   user.role === UserRoleEnum.SUPERADMIN
+    // ) {
       const notification =
         await this.notificationService.createNotifForUpdatedAppointment(
           appointment,
@@ -128,23 +132,23 @@ export class AppointmentsService {
         ...appointment,
         ...updateAppointmentInput,
       });
-    } else {
-      throw new UnauthorizedException('Unauthorized');
-    }
+    // } else {
+    //   throw new UnauthorizedException('Unauthorized');
+    // }
   }
 
   async remove(id: string, user: User) {
     const appointment = await this.findOne(id, user);
     if (appointment) {
-      if (
-        user.role === UserRoleEnum.ADMIN ||
-        user.role === UserRoleEnum.SUPERADMIN ||
-        appointment.client?.id === user?.id
-      ) {
+      // if (
+      //   user.role === UserRoleEnum.ADMIN ||
+      //   user.role === UserRoleEnum.SUPERADMIN ||
+      //   appointment.client?.id === user?.id
+      // ) {
         return await this.appointmentRepository.softRemove(appointment);
-      } else {
-        throw new UnauthorizedException('Unauthorized');
-      }
+      // } else {
+      //   throw new UnauthorizedException('Unauthorized');
+      // }
     }
     throw new NotFoundException('Appointment not found');
   }
@@ -170,5 +174,8 @@ export class AppointmentsService {
 
   async findAppointmentService(serviceID: string) {
     return await this.servicesService.findOne(serviceID);
+  }
+  async numberOfAppointments() {
+    return this.appointmentRepository.count();
   }
 }

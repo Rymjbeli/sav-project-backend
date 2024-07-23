@@ -41,7 +41,7 @@ export class AppointmentsResolver {
   }
 
   @Query(() => [Appointment], { name: 'appointments' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   async findAll(@CurrentUser() user: User) {
     return await this.appointmentsService.findAll(user);
   }
@@ -56,17 +56,22 @@ export class AppointmentsResolver {
   }
 
   @Mutation(() => Appointment)
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   async updateAppointment(
     @Args('updateAppointmentInput')
     updateAppointmentInput: UpdateAppointmentInput,
+    @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
   ) {
-    return await this.appointmentsService.update(updateAppointmentInput, user);
+    return await this.appointmentsService.update(
+      id,
+      updateAppointmentInput,
+      user,
+    );
   }
 
   @Mutation(() => Appointment)
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   async removeAppointment(
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,
@@ -105,5 +110,10 @@ export class AppointmentsResolver {
     return await this.appointmentsService.findAppointmentService(
       appointment.service?.id,
     );
+  }
+  @Query(() => Number, { name: 'numberOfAppointments' })
+  // @UseGuards(AuthGuard)
+  async numberOfAppointments() {
+    return await this.appointmentsService.numberOfAppointments();
   }
 }

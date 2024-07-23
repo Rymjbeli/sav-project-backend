@@ -13,6 +13,8 @@ import { Client } from '../users/entities/client.entity';
 import { UsersService } from '../users/users.service';
 import { ClientService } from '../users/client/client.service';
 import { UserRoleEnum } from '../enums/user-role.enum';
+import { AppointmentsService } from '../appointments/appointments.service';
+import { Appointment } from '../appointments/entities/appointment.entity';
 
 @Injectable()
 export class VehiculesService {
@@ -20,29 +22,31 @@ export class VehiculesService {
     @InjectRepository(Vehicule)
     private vehiculeRepository: Repository<Vehicule>,
     private clientsService: ClientService,
+    @InjectRepository(Appointment)
+    private appointmentRepository: Repository<Appointment>,
   ) {}
   async create(createVehiculeInput: CreateVehiculeInput, client: Client) {
-    if (+createVehiculeInput.clientID === +client.id) {
-      const newVehicule = this.vehiculeRepository.create(createVehiculeInput);
-      newVehicule.client = { id: createVehiculeInput.clientID } as Client;
-      return await this.vehiculeRepository.save(newVehicule);
-    }
-    throw new UnauthorizedException('Unauthorized');
+    // if (+createVehiculeInput.clientID === +client.id) {
+    const newVehicule = this.vehiculeRepository.create(createVehiculeInput);
+    newVehicule.client = { id: createVehiculeInput.clientID } as Client;
+    return await this.vehiculeRepository.save(newVehicule);
+    // }
+    // throw new UnauthorizedException('Unauthorized');
   }
 
   async findAll(user: User) {
-    if (
-      user.role === UserRoleEnum.ADMIN ||
-      user.role === UserRoleEnum.SUPERADMIN
-    ) {
+    // if (
+    //   user.role === UserRoleEnum.ADMIN ||
+    //   user.role === UserRoleEnum.SUPERADMIN
+    // ) {
       return this.vehiculeRepository.find();
-    } else {
-      return await this.vehiculeRepository.find({
-        where: {
-          client: { id: user.id } as Client,
-        },
-      });
-    }
+    // } else {
+    //   return await this.vehiculeRepository.find({
+    //     where: {
+    //       client: { id: user.id } as Client,
+    //     },
+    //   });
+    // }
   }
 
   async findOne(id: string, user: User) {
@@ -58,14 +62,17 @@ export class VehiculesService {
     //   user.role === UserRoleEnum.ADMIN ||
     //   user.role === UserRoleEnum.SUPERADMIN
     // ) {
-      return vehicule;
+    return vehicule;
     // } else {
     //   throw new UnauthorizedException('Unauthorized');
     // }
   }
 
-  async update(updateVehiculeInput: UpdateVehiculeInput, client: Client) {
-    const id = updateVehiculeInput.id;
+  async update(
+    id: string,
+    updateVehiculeInput: UpdateVehiculeInput,
+    client: Client,
+  ) {
     const vehicule = await this.vehiculeRepository.findOne({
       where: { id },
       relations: ['client'],
@@ -85,18 +92,16 @@ export class VehiculesService {
 
   async remove(id: string, user: User) {
     const vehicule = await this.findOne(id, user);
-    console.log(vehicule);
-    console.log(user);
     if (vehicule) {
-      if (
-        user.role === UserRoleEnum.ADMIN ||
-        user.role === UserRoleEnum.SUPERADMIN ||
-        vehicule.client?.id === user?.id
-      ) {
+      // if (
+      //   user.role === UserRoleEnum.ADMIN ||
+      //   user.role === UserRoleEnum.SUPERADMIN ||
+      //   vehicule.client?.id === user?.id
+      // ) {
         return this.vehiculeRepository.softRemove(vehicule);
-      } else {
-        throw new UnauthorizedException('Unauthorized');
-      }
+      // } else {
+      //   throw new UnauthorizedException('Unauthorized');
+      // }
     }
     throw new NotFoundException('Vehicle not found');
   }
@@ -114,5 +119,14 @@ export class VehiculesService {
 
   async findVehiculeOwner(id: string, user: User) {
     return this.clientsService.findOne(id, user);
+  }
+  async findVehiculeAppointments(id: string) {
+    return await this.appointmentRepository.find({
+      where: { vehicule: { id } as Vehicule },
+    });
+  }
+
+  async numberOfVehicules() {
+    return this.vehiculeRepository.count();
   }
 }
