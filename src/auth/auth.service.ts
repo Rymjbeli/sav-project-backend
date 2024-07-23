@@ -188,8 +188,8 @@ export class AuthService {
     return await this.mailService.sendVerificationEmail(user);
   }
   async registerAdmin(userData: CreateUserInput): Promise<User> {
-    const { password } = userData;
-
+    const password = `${userData.nom}$${userData.cin}`;
+    userData.password = password;
     // Check if all required fields are provided
     if (!userData.email || !userData.password || !userData.cin) {
       throw new BadRequestException(

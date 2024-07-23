@@ -27,6 +27,11 @@ import { PubSubModule } from './pub-sub/pub-sub.module';
       // subscriptions: {
       //   'graphql-ws': true,
       // },
+      subscriptions: {
+        'subscriptions-transport-ws': {
+          path: '/graphql',
+        },
+      },
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',

@@ -42,8 +42,9 @@ export class ServicesResolver {
   @Roles(UserRoleEnum.SUPERADMIN, UserRoleEnum.ADMIN)
   updateService(
     @Args('updateServiceInput') updateServiceInput: UpdateServiceInput,
+    @Args('id', { type: () => ID }) id: string,
   ) {
-    return this.servicesService.update(updateServiceInput);
+    return this.servicesService.update(id, updateServiceInput);
   }
 
   @Mutation(() => Service)

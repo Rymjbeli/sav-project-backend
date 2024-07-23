@@ -50,4 +50,17 @@ export class UsersResolver {
   ) {
     return await this.usersService.findOne(id, user);
   }
+  @Mutation(() => User)
+  // @UseGuards(AuthGuard)
+  async removeUser(
+    @Args('id', { type: () => ID }) id: string,
+    @CurrentUser() user: User,
+  ) {
+    return await this.usersService.remove(id, user);
+  }
+  @Mutation(() => User)
+  // @UseGuards(AuthGuard)
+  async restoreUser(@Args('id', { type: () => ID }) id: string) {
+    return await this.usersService.restore(id);
+  }
 }

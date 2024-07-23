@@ -1,6 +1,7 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
-import { IsEmail, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
 import { SexeEnum } from '../../enums/sexe.enum';
+import { Optional } from '@nestjs/common';
 
 @InputType()
 export class CreateUserInput {
@@ -12,9 +13,9 @@ export class CreateUserInput {
   @IsNotEmpty()
   cin: number;
 
-  @Field(() => String)
-  @IsNotEmpty()
-  password: string;
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  password?: string;
 
   @Field(() => String)
   @IsNotEmpty()
@@ -32,8 +33,8 @@ export class CreateUserInput {
   @IsNotEmpty()
   adresse: string;
 
-  @Field(() => SexeEnum)
-  @IsNotEmpty()
+  @Field(() => SexeEnum, { nullable: true })
+  @IsOptional()
   sexe: SexeEnum;
 
   @Field(() => Date)

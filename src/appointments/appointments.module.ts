@@ -11,11 +11,11 @@ import { JwtModule } from '@nestjs/jwt';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Appointment]),
-    UsersModule,
     VehiculesModule,
     ServicesModule,
     JwtModule,
   ],
   providers: [AppointmentsResolver, AppointmentsService],
+  exports: [AppointmentsService],
 })
 export class AppointmentsModule {}

@@ -1,13 +1,13 @@
 import { registerEnumType } from '@nestjs/graphql';
 
 export enum TypeEnum {
-  SEDAN = 'SEDAN',
+  SEDAN = 'Sedan',
   SUV = 'SUV',
-  VOITURE = 'VOITURE',
-  MOTO = 'MOTO',
-  CAMION = 'CAMION',
-  CAMIONNETTE = 'CAMIONNETTE',
-  BUS = 'BUS',
+  VOITURE = 'Voiture',
+  MOTO = 'Moto',
+  CAMION = 'Camion',
+  CAMIONNETTE = 'Camionnette',
+  BUS = 'Bus',
 }
 
 registerEnumType(TypeEnum, {

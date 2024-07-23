@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   TableInheritance,
 } from 'typeorm';
+import { TimestampEntity } from '../../shared/entities/timestamp';
 
 @Entity()
 @TableInheritance({
@@ -14,7 +15,7 @@ import {
 })
 @ObjectType()
 @InputType('UserInput')
-export class User {
+export class User extends TimestampEntity {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
   id: string;
