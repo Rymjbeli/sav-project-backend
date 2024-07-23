@@ -73,7 +73,7 @@ export class AppointmentsService {
     //   user.role === UserRoleEnum.ADMIN ||
     //   user.role === UserRoleEnum.SUPERADMIN
     // ) {
-      return this.appointmentRepository.find();
+    return this.appointmentRepository.find();
     // } else {
     //   return await this.appointmentRepository.find({
     //     where: {
@@ -96,7 +96,7 @@ export class AppointmentsService {
     //   user.role === UserRoleEnum.ADMIN ||
     //   user.role === UserRoleEnum.SUPERADMIN
     // ) {
-      return appointment;
+    return appointment;
     // } else {
     //   throw new UnauthorizedException('Unauthorized');
     // }
@@ -120,18 +120,18 @@ export class AppointmentsService {
     //   user.role === UserRoleEnum.ADMIN ||
     //   user.role === UserRoleEnum.SUPERADMIN
     // ) {
-      const notification =
-        await this.notificationService.createNotifForUpdatedAppointment(
-          appointment,
-          user,
-        );
-      await this.pubSub.publish('appointmentUpdated', {
-        appointmentUpdated: notification,
-      });
-      return await this.appointmentRepository.save({
-        ...appointment,
-        ...updateAppointmentInput,
-      });
+    const notification =
+      await this.notificationService.createNotifForUpdatedAppointment(
+        appointment,
+        user,
+      );
+    await this.pubSub.publish('appointmentUpdated', {
+      appointmentUpdated: notification,
+    });
+    return await this.appointmentRepository.save({
+      ...appointment,
+      ...updateAppointmentInput,
+    });
     // } else {
     //   throw new UnauthorizedException('Unauthorized');
     // }
@@ -145,7 +145,7 @@ export class AppointmentsService {
       //   user.role === UserRoleEnum.SUPERADMIN ||
       //   appointment.client?.id === user?.id
       // ) {
-        return await this.appointmentRepository.softRemove(appointment);
+      return await this.appointmentRepository.softRemove(appointment);
       // } else {
       //   throw new UnauthorizedException('Unauthorized');
       // }

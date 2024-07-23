@@ -4,9 +4,7 @@ import { Admin } from '../entities/admin.entity';
 
 @Resolver()
 export class AdminResolver {
-  constructor(
-    private readonly adminService: AdminService,
-  ) {}
+  constructor(private readonly adminService: AdminService) {}
   @Query(() => [Admin], { name: 'admins' })
   findAll() {
     return this.adminService.findAll();

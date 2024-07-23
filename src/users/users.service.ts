@@ -93,7 +93,7 @@ export class UsersService {
     //   user.role === UserRoleEnum.ADMIN ||
     //   user.role === UserRoleEnum.SUPERADMIN
     // ) {
-      return fetchedUser;
+    return fetchedUser;
     // } else {
     //   throw new UnauthorizedException('Unauthorized');
     // }
@@ -105,7 +105,7 @@ export class UsersService {
       //   user.role === UserRoleEnum.ADMIN ||
       //   user.role === UserRoleEnum.SUPERADMIN
       // ) {
-        return await this.userRepository.softRemove(fetchedUser);
+      return await this.userRepository.softRemove(fetchedUser);
       // } else {
       //   throw new UnauthorizedException('Unauthorized');
       // }

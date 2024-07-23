@@ -39,7 +39,7 @@ export class VehiculesService {
     //   user.role === UserRoleEnum.ADMIN ||
     //   user.role === UserRoleEnum.SUPERADMIN
     // ) {
-      return this.vehiculeRepository.find();
+    return this.vehiculeRepository.find();
     // } else {
     //   return await this.vehiculeRepository.find({
     //     where: {
@@ -98,7 +98,7 @@ export class VehiculesService {
       //   user.role === UserRoleEnum.SUPERADMIN ||
       //   vehicule.client?.id === user?.id
       // ) {
-        return this.vehiculeRepository.softRemove(vehicule);
+      return this.vehiculeRepository.softRemove(vehicule);
       // } else {
       //   throw new UnauthorizedException('Unauthorized');
       // }
