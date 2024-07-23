@@ -83,6 +83,14 @@ export class User extends TimestampEntity {
   @Field({ nullable: true })
   verificationTokenExpiry: Date;
 
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  resetPasswordToken: string;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  resetTokenExpiry: Date;
+
   toJSON() {
     const obj = Object.assign({}, this);
     delete obj.password;
