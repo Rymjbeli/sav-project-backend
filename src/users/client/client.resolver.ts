@@ -19,4 +19,19 @@ export class ClientResolver {
   ) {
     return this.clientService.findOne(id, user);
   }
+  @Query(() => [Client], { name: 'clients' })
+  // @UseGuards(AuthGuard)
+  findAll(@CurrentUser() user: User) {
+    return this.clientService.findAll(user);
+  }
+  @Query(() => Number, { name: 'numberOfClients' })
+  // @UseGuards(AuthGuard)
+  numberOfClients() {
+    return this.clientService.numberOfClients();
+  }
+  @Query(() => Number, { name: 'numberOfNewClients' })
+  // @UseGuards(AuthGuard)
+  numberOfNewClients() {
+    return this.clientService.numberOfNewClients();
+  }
 }

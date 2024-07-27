@@ -12,13 +12,14 @@ import { ClientResolver } from './client/client.resolver';
 import { AdminService } from './admin/admin.service';
 import { ClientService } from './client/client.service';
 import { Client } from './entities/client.entity';
-import { MailModule } from "../mail/mail.module";
+import { Admin } from './entities/admin.entity';
+import { MailModule } from '../mail/mail.module';
 @Global()
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, SuperAdmin, Client]),
+    TypeOrmModule.forFeature([User, SuperAdmin, Client, Admin]),
+    MailModule,
     forwardRef(() => AuthModule),
-    MailModule
   ],
   providers: [
     UsersResolver,

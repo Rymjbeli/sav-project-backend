@@ -49,7 +49,7 @@ export class NotificationsResolver {
   })
   appointmentUpdated(
     @Args('role') role: UserRoleEnum,
-    @Args('id', { nullable: true }) id?: number,
+    @Args('id', { type: () => ID, nullable: true }) id: string,
   ) {
     return this.pubSub.asyncIterator('appointmentUpdated');
   }

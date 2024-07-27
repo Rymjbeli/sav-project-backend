@@ -1,10 +1,14 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Client } from '../entities/client.entity';
-import { Repository } from 'typeorm';
+import { LessThan, MoreThan, Repository } from 'typeorm';
 import { UserRoleEnum } from '../../enums/user-role.enum';
 import { User } from '../entities/user.entity';
-
+import { subDays } from 'date-fns';
 @Injectable()
 export class ClientService {
   constructor(
@@ -25,9 +29,32 @@ export class ClientService {
     //   user.role === UserRoleEnum.ADMIN ||
     //   user.role === UserRoleEnum.SUPERADMIN
     // ) {
-      return fetchedUser;
+    return fetchedUser;
     // } else {
     //   throw new UnauthorizedException('Unauthorized');
     // }
+  }
+
+  async findAll(user: User) {
+    // if (
+    //   user.role === UserRoleEnum.ADMIN ||
+    //   user.role === UserRoleEnum.SUPERADMIN
+    // ) {
+    return this.clientRepository.find({
+      relations: ['vehicules'],
+    });
+    // } else {
+    //   throw new UnauthorizedException('Unauthorized');
+    // }
+  }
+
+  async numberOfClients() {
+    return this.clientRepository.count();
+  }
+  async numberOfNewClients() {
+    const oneWeekAgo = subDays(new Date(), 7);
+    return this.clientRepository.count({
+      where: { createdAt: MoreThan(oneWeekAgo) },
+    });
   }
 }
