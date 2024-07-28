@@ -6,10 +6,14 @@ import {
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { JwtService } from '@nestjs/jwt';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
+  constructor(
+    private jwtService: JwtService,
+    private authService: AuthService,
+  ) {}
 
   canActivate(context: ExecutionContext): boolean {
     const ctx = GqlExecutionContext.create(context);
@@ -21,6 +25,9 @@ export class AuthGuard implements CanActivate {
 
       if (bearer !== 'Bearer')
         throw new UnauthorizedException('Format de jeton invalide');
+
+      if (this.authService.isTokenBlacklisted(token))
+        throw new UnauthorizedException("Token n'est plus valide");
 
       request.user = this.jwtService.verify(token);
 

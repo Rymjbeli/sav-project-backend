@@ -40,6 +40,8 @@ export class AuthService {
     private mailService: MailService,
   ) {}
 
+  private tokenBlacklist = new Set<string>();
+
   private generateAccessToken(user: User): string {
     const payload = { id: user.id, email: user.email, role: user.role };
     const tokenLife = this.configService.get('ACCESS_TOKEN_EXPIRATION');
@@ -96,7 +98,7 @@ export class AuthService {
 
     // Hash the password
     const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password + Date.now(), salt);
 
     console.log(userData);
     try {
@@ -132,7 +134,7 @@ export class AuthService {
 
     // Hash the password
     const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password + Date.now(), salt);
 
     // Generate a verification token
     const verificationToken = uuidv4();
@@ -187,6 +189,7 @@ export class AuthService {
 
     return await this.mailService.sendVerificationEmail(user);
   }
+
   async registerAdmin(userData: CreateUserInput): Promise<User> {
     const password = `${userData.nom}$${userData.cin}`;
     userData.password = password;
@@ -199,7 +202,7 @@ export class AuthService {
 
     // Hash the password
     const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password + Date.now(), salt);
 
     try {
       // Save the user with the hashed password
@@ -257,5 +260,13 @@ export class AuthService {
     await this.userRepository.save(user);
 
     return user;
+  }
+
+  async logout(token: string): Promise<void> {
+    this.tokenBlacklist.add(token);
+  }
+
+  isTokenBlacklisted(token: string): boolean {
+    return this.tokenBlacklist.has(token);
   }
 }

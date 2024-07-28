@@ -7,6 +7,6 @@ import { mailerConfig } from '../config/mailer.config';
 @Module({
   providers: [MailResolver, MailService],
   imports: [MailerModule.forRoot(mailerConfig)],
-  exports: [MailerModule, MailService],
+  exports: [MailService],
 })
 export class MailModule {}
