@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int, ID } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Int, ID, Context } from "@nestjs/graphql";
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';
@@ -16,11 +16,13 @@ export class UsersResolver {
   ) {}
 
   @Mutation(() => User)
+  @UseGuards(AuthGuard)
   async changePassword(
     @CurrentUser() user: User,
     @Args('password') password: string,
     @Args('confirmPassword') confirmPassword: string,
   ) {
+    console.log(user);
     return this.usersService.changePassword(user, password, confirmPassword);
   }
 
@@ -31,10 +33,11 @@ export class UsersResolver {
 
   @Mutation(() => Boolean)
   async resetPassword(
-    @Args('token') token: string,
+    @Context() context,
     @Args('password') password: string,
     @Args('confirmPassword') confirmPassword: string,
   ) {
+    const token = context.req.query.token;
     return await this.usersService.resetPassword(
       token,
       password,
