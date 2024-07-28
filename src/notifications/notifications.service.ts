@@ -55,8 +55,8 @@ export class NotificationsService {
     let content = '';
 
     if (
-      user.role === UserRoleEnum.ADMIN ||
-      user.role === UserRoleEnum.SUPERADMIN
+      user?.role === UserRoleEnum.ADMIN ||
+      user?.role === UserRoleEnum.SUPERADMIN
     ) {
       content =
         `Le rendez-vous de ${appointment?.client?.nom} ${appointment?.client?.prenom} ` +
@@ -109,18 +109,18 @@ export class NotificationsService {
   }
 
   async findAll(user: User) {
-    if (
-      user?.role === UserRoleEnum.ADMIN ||
-      user?.role === UserRoleEnum.SUPERADMIN
-    ) {
+    // if (
+    //   user?.role === UserRoleEnum.ADMIN ||
+    //   user?.role === UserRoleEnum.SUPERADMIN
+    // ) {
       return this.notificationRepository.find();
-    } else {
-      return await this.notificationRepository.find({
-        where: {
-          receiver: { id: user?.id } as User,
-        },
-      });
-    }
+    // } else {
+    //   return await this.notificationRepository.find({
+    //     where: {
+    //       receiver: { id: user?.id } as User,
+    //     },
+    //   });
+    // }
   }
 
   async findOne(id: string, user: User) {
@@ -131,31 +131,47 @@ export class NotificationsService {
     if (!notification) {
       throw new NotFoundException('Notification not found');
     }
-    if (
-      notification.receiver?.id === user?.id ||
-      (!notification.receiver &&
-        (user.role === UserRoleEnum.ADMIN ||
-          user?.role === UserRoleEnum.SUPERADMIN))
-    ) {
+    // if (
+    //   notification.receiver?.id === user?.id ||
+    //   (!notification.receiver &&
+    //     (user.role === UserRoleEnum.ADMIN ||
+    //       user?.role === UserRoleEnum.SUPERADMIN))
+    // ) {
       return notification;
-    } else {
-      throw new UnauthorizedException('Unauthorized');
-    }
+    // } else {
+    //   throw new UnauthorizedException('Unauthorized');
+    // }
   }
 
   async remove(id: string, user: User) {
     const notification = await this.findOne(id, user);
     if (notification) {
-      if (
-        notification.receiver?.id === user?.id ||
-        (!notification.receiver &&
-          (user?.role === UserRoleEnum.ADMIN ||
-            user?.role === UserRoleEnum.SUPERADMIN))
-      ) {
+      // if (
+      //   notification.receiver?.id === user?.id ||
+      //   (!notification.receiver &&
+      //     (user?.role === UserRoleEnum.ADMIN ||
+      //       user?.role === UserRoleEnum.SUPERADMIN))
+      // ) {
         return this.notificationRepository.softRemove(notification);
-      } else {
-        throw new UnauthorizedException('Unauthorized');
-      }
+      // } else {
+      //   throw new UnauthorizedException('Unauthorized');
+      // }
+    }
+    throw new NotFoundException('Notification not found');
+  }
+  async markAsRead(id: string, user: User) {
+    const notification = await this.findOne(id, user);
+    if (notification) {
+      notification.isRead = true;
+      return this.notificationRepository.save(notification);
+    }
+    throw new NotFoundException('Notification not found');
+  }
+  async markAsSeen(id: string, user: User) {
+    const notification = await this.findOne(id, user);
+    if (notification) {
+      notification.isSeen = true;
+      return this.notificationRepository.save(notification);
     }
     throw new NotFoundException('Notification not found');
   }
