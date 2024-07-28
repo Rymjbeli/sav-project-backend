@@ -1,11 +1,11 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
 import { Auth } from './entities/auth.entity';
 import { LoginResponse } from './dto/login-response-type';
 import { LoginCredentialsDto } from './dto/login-credentials.input';
 import { User } from '../users/entities/user.entity';
 import { CreateUserInput } from '../users/dto/create-user.input';
-import { UseGuards } from '@nestjs/common';
+import { UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../guards/auth.guard';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../decorators/roles.decorator';
@@ -25,8 +25,8 @@ export class AuthResolver {
   }
 
   @Mutation(() => User)
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRoleEnum.SUPERADMIN)
+/*  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.SUPERADMIN)*/
   async registerSuperAdmin(
     @CurrentUser() user: User,
     @Args('userData') userData: CreateUserInput,
@@ -47,8 +47,8 @@ export class AuthResolver {
   }
 
   @Mutation(() => User)
-  // @UseGuards(AuthGuard, RolesGuard)
-  // @Roles(UserRoleEnum.SUPERADMIN, UserRoleEnum.ADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.SUPERADMIN, UserRoleEnum.ADMIN)
   async registerAdmin(
     @CurrentUser() user: User,
     @Args('userData') userData: CreateUserInput,
@@ -59,6 +59,17 @@ export class AuthResolver {
   @Mutation(() => Boolean)
   async verifyEmail(@Args('token') token: string): Promise<boolean> {
     await this.authService.verifyEmail(token);
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  async logout(@Context() context): Promise<boolean> {
+    const authHeader = context.req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) {
+      throw new UnauthorizedException('Token not provided');
+    }
+    await this.authService.logout(token);
     return true;
   }
 }

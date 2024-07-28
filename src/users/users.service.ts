@@ -25,17 +25,29 @@ export class UsersService {
     password: string,
     confirmPassword: string,
   ): Promise<User> {
+    const commpleteUser = await this.userRepository.findOne({
+      where: { id: user.id },
+    });
+
     if (password !== confirmPassword) {
       throw new Error('Les mots de passe ne correspondent pas');
     }
     if (password.length < 8) {
       throw new Error('Le mot de passe doit contenir au moins 8 caractères');
     }
-    if (password === user.password) {
+    // Check if the new password is the same as the old one
+    const isSamePassword = await bcrypt.compare(
+      password,
+      commpleteUser.password,
+    );
+    if (isSamePassword) {
       throw new Error("Le mot de passe doit être différent de l'ancien");
     }
     // user.salt = await bcrypt.genSalt();
-    user.password = await bcrypt.hash(password, user.salt);
+    user.password = await bcrypt.hash(
+      password,
+      commpleteUser.salt,
+    );
     return await this.userRepository.save(user);
   }
 

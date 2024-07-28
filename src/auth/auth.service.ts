@@ -40,6 +40,8 @@ export class AuthService {
     private mailService: MailService,
   ) {}
 
+  private tokenBlacklist = new Set<string>();
+
   private generateAccessToken(user: User): string {
     const payload = { id: user.id, email: user.email, role: user.role };
     const tokenLife = this.configService.get('ACCESS_TOKEN_EXPIRATION');
@@ -187,6 +189,7 @@ export class AuthService {
 
     return await this.mailService.sendVerificationEmail(user);
   }
+
   async registerAdmin(userData: CreateUserInput): Promise<User> {
     const password = `${userData.nom}$${userData.cin}`;
     userData.password = password;
@@ -257,5 +260,13 @@ export class AuthService {
     await this.userRepository.save(user);
 
     return user;
+  }
+
+  async logout(token: string): Promise<void> {
+    this.tokenBlacklist.add(token);
+  }
+
+  isTokenBlacklisted(token: string): boolean {
+    return this.tokenBlacklist.has(token);
   }
 }
