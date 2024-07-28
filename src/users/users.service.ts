@@ -45,7 +45,7 @@ export class UsersService {
     }
     // user.salt = await bcrypt.genSalt();
     user.password = await bcrypt.hash(
-      password + Date.now(),
+      password,
       commpleteUser.salt,
     );
     return await this.userRepository.save(user);
@@ -56,7 +56,7 @@ export class UsersService {
     if (!user) {
       throw new Error('Utilisateur non trouvé');
     }
-    const token = await bcrypt.hash(user.email + Date.now(), user.salt);
+    const token = await bcrypt.hash(user.email, user.salt);
     user.resetPasswordToken = token;
 
     const resetTokenExpiry = new Date();
@@ -88,7 +88,7 @@ export class UsersService {
     if (password.length < 8) {
       throw new Error('Le mot de passe doit contenir au moins 8 caractères');
     }
-    user.password = await bcrypt.hash(password + Date.now(), user.salt);
+    user.password = await bcrypt.hash(password, user.salt);
     user.resetPasswordToken = null;
     user.resetTokenExpiry = null;
     await this.userRepository.save(user);

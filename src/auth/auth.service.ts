@@ -98,7 +98,7 @@ export class AuthService {
 
     // Hash the password
     const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password + Date.now(), salt);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     console.log(userData);
     try {
@@ -134,7 +134,7 @@ export class AuthService {
 
     // Hash the password
     const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password + Date.now(), salt);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     // Generate a verification token
     const verificationToken = uuidv4();
@@ -202,7 +202,7 @@ export class AuthService {
 
     // Hash the password
     const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password + Date.now(), salt);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     try {
       // Save the user with the hashed password
