@@ -44,10 +44,7 @@ export class UsersService {
       throw new Error("Le mot de passe doit être différent de l'ancien");
     }
     // user.salt = await bcrypt.genSalt();
-    user.password = await bcrypt.hash(
-      password,
-      commpleteUser.salt,
-    );
+    user.password = await bcrypt.hash(password, commpleteUser.salt);
     return await this.userRepository.save(user);
   }
 

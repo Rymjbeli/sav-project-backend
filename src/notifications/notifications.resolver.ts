@@ -37,15 +37,17 @@ export class NotificationsResolver {
     return this.pubSub.asyncIterator('appointmentCreated');
   }
   @Subscription(() => Notification, {
-    // filter: (payload, variables) => {
-    //   console.log('payload', payload);
-    //   return (
-    //     payload?.appointmentUpdated?.receiver?.id === variables?.id ||
-    //     (!payload?.appointmentUpdated?.receiver?.id &&
-    //       (variables?.role === UserRoleEnum.ADMIN ||
-    //         variables?.role === UserRoleEnum.SUPERADMIN))
-    //   );
-    // },
+    filter: (payload, variables) => {
+      console.log('payload', payload);
+      console.log('variables', variables?.id);
+      console.log(payload?.appointmentUpdated?.receiver?.id === variables?.id);
+      return (
+        +payload?.appointmentUpdated?.receiver?.id === +variables?.id ||
+        (!payload?.appointmentUpdated?.receiver?.id &&
+          (variables?.role === UserRoleEnum.ADMIN ||
+            variables?.role === UserRoleEnum.SUPERADMIN))
+      );
+    },
   })
   appointmentUpdated(
     @Args('role') role: UserRoleEnum,
@@ -62,7 +64,7 @@ export class NotificationsResolver {
   }
 
   @Query(() => [Notification], { name: 'notifications' })
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   findAll(@CurrentUser() user: User) {
     return this.notificationsService.findAll(user);
   }
@@ -77,7 +79,7 @@ export class NotificationsResolver {
   }
 
   @Mutation(() => Notification)
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   removeNotification(
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,

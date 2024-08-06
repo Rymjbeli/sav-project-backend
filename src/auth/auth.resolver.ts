@@ -25,7 +25,7 @@ export class AuthResolver {
   }
 
   @Mutation(() => User)
-/*  @UseGuards(AuthGuard, RolesGuard)
+  /*  @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRoleEnum.SUPERADMIN)*/
   async registerSuperAdmin(
     @CurrentUser() user: User,

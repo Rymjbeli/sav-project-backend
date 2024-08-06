@@ -27,8 +27,8 @@ export class VehiculesResolver {
   constructor(private readonly vehiculesService: VehiculesService) {}
 
   @Mutation(() => Vehicule)
-  // @UseGuards(AuthGuard, RolesGuard)
-  // @Roles(UserRoleEnum.CLIENT)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.CLIENT)
   createVehicule(
     @Args('createVehiculeInput') createVehiculeInput: CreateVehiculeInput,
     @CurrentUser() client: Client,

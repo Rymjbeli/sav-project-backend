@@ -73,7 +73,7 @@ export class AuthService {
     }
 
     const accessToken = this.generateAccessToken(user);
-
+    console.log(accessToken);
     return { accessToken, user: user.toJSON() };
   }
 

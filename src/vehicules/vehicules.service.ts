@@ -26,12 +26,12 @@ export class VehiculesService {
     private appointmentRepository: Repository<Appointment>,
   ) {}
   async create(createVehiculeInput: CreateVehiculeInput, client: Client) {
-    // if (+createVehiculeInput.clientID === +client.id) {
-    const newVehicule = this.vehiculeRepository.create(createVehiculeInput);
-    newVehicule.client = { id: createVehiculeInput.clientID } as Client;
-    return await this.vehiculeRepository.save(newVehicule);
-    // }
-    // throw new UnauthorizedException('Unauthorized');
+    if (+createVehiculeInput.clientID === +client.id) {
+      const newVehicule = this.vehiculeRepository.create(createVehiculeInput);
+      newVehicule.client = { id: createVehiculeInput.clientID } as Client;
+      return await this.vehiculeRepository.save(newVehicule);
+    }
+    throw new UnauthorizedException('Unauthorized');
   }
 
   async findAll(user: User) {
