@@ -33,11 +33,10 @@ export class UsersResolver {
 
   @Mutation(() => Boolean)
   async resetPassword(
-    @Context() context,
+    @Args('token') token: string,
     @Args('password') password: string,
     @Args('confirmPassword') confirmPassword: string,
   ) {
-    const token = context.req.query.token;
     return await this.usersService.resetPassword(
       token,
       password,

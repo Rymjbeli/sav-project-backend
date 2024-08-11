@@ -55,7 +55,7 @@ export class MailService {
     }
   }
   createVerificationMailContent(user: User) {
-    const url = `http://localhost:3000/verify?token=${user.verificationToken}`;
+    const url = `http://localhost:3000/verify?token=${user.verificationToken}&email=${user.email}`;
 
     return `<p>Dear ${user.prenom},</p>
     <p>We're excited to have you get started. First, you need to verify your email address. Click the link to verify your email:</p>
