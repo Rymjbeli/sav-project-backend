@@ -164,9 +164,7 @@ export class AuthService {
 
       return user;
     } catch (e) {
-      throw new ConflictException(
-        `Email ${userData.email} ou cin ${userData.cin} déjà existant`,
-      );
+      throw new ConflictException(`Email ou cin déjà existant`);
     }
   }
 
@@ -174,6 +172,10 @@ export class AuthService {
     const user = await this.userRepository.findOne({ where: { email } });
     if (!user) {
       throw new NotFoundException('Utilisateur non trouvé');
+    }
+
+    if (user.isVerified) {
+      throw new UnauthorizedException('Compte déjà verifé');
     }
     // Generate a verification token
     const verificationToken = uuidv4();
@@ -229,9 +231,9 @@ export class AuthService {
     }
   }
 
-  async verifyEmail(verificationToken: string): Promise<User> {
+  async verifyEmail(verificationToken: string, email: string): Promise<User> {
     // Find the user with the verification token
-    const user = await this.userRepository.findOne({
+    let user = await this.userRepository.findOne({
       where: {
         verificationToken,
       },
@@ -239,16 +241,24 @@ export class AuthService {
 
     // If the user is not found, throw an error
     if (!user) {
-      throw new NotFoundException('Utilisateur non trouvé');
+      user = await this.userRepository.findOne({
+        where: {
+          email,
+        },
+      });
+
+      if (user && user.isVerified) {
+        throw new UnauthorizedException('Compte déjà verifé');
+      }
+
+      if (!user) {
+        throw new NotFoundException('Utilisateur non trouvé');
+      }
     }
 
     // If the verification token has expired, throw an error
     if (user.verificationTokenExpiry < new Date()) {
       throw new UnauthorizedException('Le token de vérification a expiré');
-    }
-
-    if (user.isVerified) {
-      throw new UnauthorizedException('Compte déjà verifé');
     }
 
     // Update the user to be verified and clear the verification token

@@ -57,9 +57,16 @@ export class AuthResolver {
   }
 
   @Mutation(() => Boolean)
-  async verifyEmail(@Args('token') token: string): Promise<boolean> {
-    await this.authService.verifyEmail(token);
-    return true;
+  async verifyEmail(
+    @Args('token') token: string,
+    @Args('email') email: string,
+  ): Promise<boolean> {
+    try {
+      await this.authService.verifyEmail(token, email);
+      return true;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   @Mutation(() => Boolean)
