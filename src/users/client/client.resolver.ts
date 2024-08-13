@@ -12,7 +12,7 @@ export class ClientResolver {
   constructor(private readonly clientService: ClientService) {}
 
   @Query(() => Client, { name: 'client' })
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   findOne(
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,

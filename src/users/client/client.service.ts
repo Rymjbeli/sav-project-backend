@@ -24,15 +24,15 @@ export class ClientService {
     if (!fetchedUser) {
       throw new NotFoundException('Client not found');
     }
-    // if (
-    //   +id === +user?.id ||
-    //   user.role === UserRoleEnum.ADMIN ||
-    //   user.role === UserRoleEnum.SUPERADMIN
-    // ) {
-    return fetchedUser;
-    // } else {
-    //   throw new UnauthorizedException('Unauthorized');
-    // }
+    if (
+      +id === +user?.id ||
+      user.role === UserRoleEnum.ADMIN ||
+      user.role === UserRoleEnum.SUPERADMIN
+    ) {
+      return fetchedUser;
+    } else {
+      throw new UnauthorizedException('Unauthorized');
+    }
   }
 
   async findAll(user: User) {
