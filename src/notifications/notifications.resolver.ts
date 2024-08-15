@@ -39,8 +39,10 @@ export class NotificationsResolver {
   @Subscription(() => Notification, {
     filter: (payload, variables) => {
       console.log('payload', payload);
+      console.log('variables', variables?.id);
+      console.log(payload?.appointmentUpdated?.receiver?.id === variables?.id);
       return (
-        payload?.appointmentUpdated?.receiver?.id === variables?.id ||
+        +payload?.appointmentUpdated?.receiver?.id === +variables?.id ||
         (!payload?.appointmentUpdated?.receiver?.id &&
           (variables?.role === UserRoleEnum.ADMIN ||
             variables?.role === UserRoleEnum.SUPERADMIN))
@@ -83,5 +85,22 @@ export class NotificationsResolver {
     @CurrentUser() user: User,
   ) {
     return this.notificationsService.remove(id, user);
+  }
+
+  @Mutation(() => Notification)
+  // @UseGuards(AuthGuard)
+  markAsRead(
+    @Args('id', { type: () => ID }) id: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.notificationsService.markAsRead(id, user);
+  }
+  @Mutation(() => Notification)
+  // @UseGuards(AuthGuard)
+  markAsSeen(
+    @Args('id', { type: () => ID }) id: string,
+    @CurrentUser() user: User,
+  ) {
+    return this.notificationsService.markAsSeen(id, user);
   }
 }

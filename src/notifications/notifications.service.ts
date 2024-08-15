@@ -55,8 +55,8 @@ export class NotificationsService {
     let content = '';
 
     if (
-      user.role === UserRoleEnum.ADMIN ||
-      user.role === UserRoleEnum.SUPERADMIN
+      user?.role === UserRoleEnum.ADMIN ||
+      user?.role === UserRoleEnum.SUPERADMIN
     ) {
       content =
         `Le rendez-vous de ${appointment?.client?.nom} ${appointment?.client?.prenom} ` +
@@ -131,23 +131,23 @@ export class NotificationsService {
     if (!notification) {
       throw new NotFoundException('Notification not found');
     }
-    if (
-      notification.receiver?.id === user?.id ||
-      (!notification.receiver &&
-        (user.role === UserRoleEnum.ADMIN ||
-          user?.role === UserRoleEnum.SUPERADMIN))
-    ) {
-      return notification;
-    } else {
-      throw new UnauthorizedException('Unauthorized');
-    }
+    // if (
+    //   +notification.receiver?.id === +user?.id ||
+    //   (!notification.receiver &&
+    //     (user.role === UserRoleEnum.ADMIN ||
+    //       user?.role === UserRoleEnum.SUPERADMIN))
+    // ) {
+    return notification;
+    // } else {
+    //   throw new UnauthorizedException('Unauthorized');
+    // }
   }
 
   async remove(id: string, user: User) {
     const notification = await this.findOne(id, user);
     if (notification) {
       if (
-        notification.receiver?.id === user?.id ||
+        +notification.receiver?.id === +user?.id ||
         (!notification.receiver &&
           (user?.role === UserRoleEnum.ADMIN ||
             user?.role === UserRoleEnum.SUPERADMIN))
@@ -156,6 +156,22 @@ export class NotificationsService {
       } else {
         throw new UnauthorizedException('Unauthorized');
       }
+    }
+    throw new NotFoundException('Notification not found');
+  }
+  async markAsRead(id: string, user: User) {
+    const notification = await this.findOne(id, user);
+    if (notification) {
+      notification.isRead = true;
+      return this.notificationRepository.save(notification);
+    }
+    throw new NotFoundException('Notification not found');
+  }
+  async markAsSeen(id: string, user: User) {
+    const notification = await this.findOne(id, user);
+    if (notification) {
+      notification.isSeen = true;
+      return this.notificationRepository.save(notification);
     }
     throw new NotFoundException('Notification not found');
   }

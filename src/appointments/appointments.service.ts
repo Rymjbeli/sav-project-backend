@@ -54,7 +54,7 @@ export class AppointmentsService {
       newAppointment.client = owner;
       newAppointment.vehicule = vehicule;
       newAppointment.service = service;
-      console.log('newAppointment', newAppointment);
+      // console.log('newAppointment', newAppointment);
 
       const notification =
         await this.notificationService.createNotifForNewAppointment(
@@ -111,44 +111,45 @@ export class AppointmentsService {
       where: { id },
       relations: ['client', 'service'],
     });
-    console.log('appointment', appointment);
+    // console.log('appointment', appointment);
     if (!appointment) {
       throw new NotFoundException('Appointment not found');
     }
-    // if (
-    //   appointment.client?.id === user.id ||
-    //   user.role === UserRoleEnum.ADMIN ||
-    //   user.role === UserRoleEnum.SUPERADMIN
-    // ) {
-    const notification =
-      await this.notificationService.createNotifForUpdatedAppointment(
-        appointment,
-        user,
-      );
-    await this.pubSub.publish('appointmentUpdated', {
-      appointmentUpdated: notification,
-    });
-    return await this.appointmentRepository.save({
-      ...appointment,
-      ...updateAppointmentInput,
-    });
-    // } else {
-    //   throw new UnauthorizedException('Unauthorized');
-    // }
+    if (
+      appointment.client?.id === user.id ||
+      user.role === UserRoleEnum.ADMIN ||
+      user.role === UserRoleEnum.SUPERADMIN
+    ) {
+      const notification =
+        await this.notificationService.createNotifForUpdatedAppointment(
+          appointment,
+          user,
+        );
+
+      await this.pubSub.publish('appointmentUpdated', {
+        appointmentUpdated: notification,
+      });
+      return await this.appointmentRepository.save({
+        ...appointment,
+        ...updateAppointmentInput,
+      });
+    } else {
+      throw new UnauthorizedException('Unauthorized');
+    }
   }
 
   async remove(id: string, user: User) {
     const appointment = await this.findOne(id, user);
     if (appointment) {
-      // if (
-      //   user.role === UserRoleEnum.ADMIN ||
-      //   user.role === UserRoleEnum.SUPERADMIN ||
-      //   appointment.client?.id === user?.id
-      // ) {
-      return await this.appointmentRepository.softRemove(appointment);
-      // } else {
-      //   throw new UnauthorizedException('Unauthorized');
-      // }
+      if (
+        user.role === UserRoleEnum.ADMIN ||
+        user.role === UserRoleEnum.SUPERADMIN ||
+        appointment.client?.id === user?.id
+      ) {
+        return await this.appointmentRepository.softRemove(appointment);
+      } else {
+        throw new UnauthorizedException('Unauthorized');
+      }
     }
     throw new NotFoundException('Appointment not found');
   }

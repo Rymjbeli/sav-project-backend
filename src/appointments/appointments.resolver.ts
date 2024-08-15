@@ -56,7 +56,7 @@ export class AppointmentsResolver {
   }
 
   @Mutation(() => Appointment)
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   async updateAppointment(
     @Args('updateAppointmentInput')
     updateAppointmentInput: UpdateAppointmentInput,
@@ -71,7 +71,7 @@ export class AppointmentsResolver {
   }
 
   @Mutation(() => Appointment)
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   async removeAppointment(
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: User,

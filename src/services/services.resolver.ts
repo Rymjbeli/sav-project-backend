@@ -25,7 +25,7 @@ export class ServicesResolver {
   }
 
   @Query(() => [Service], { name: 'services' })
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   findAll() {
     return this.servicesService.findAll();
   }

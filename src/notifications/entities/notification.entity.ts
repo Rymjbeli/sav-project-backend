@@ -29,6 +29,13 @@ export class Notification extends TimestampEntity {
   @Field({ nullable: true })
   receiver!: User;
 
+  @Column({ default: false })
+  @Field({ defaultValue: false })
+  isRead!: boolean;
+
+  @Column({ default: false })
+  @Field({ defaultValue: false })
+  isSeen!: boolean;
   // @ManyToOne(() => User)
   // @Field({ nullable: true })
   // sender!: User;
