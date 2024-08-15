@@ -196,9 +196,9 @@ export class AuthService {
     const password = `${userData.nom}$${userData.cin}`;
     userData.password = password;
     // Check if all required fields are provided
-    if (!userData.email || !userData.password || !userData.cin) {
+    if (!userData.email || !userData.cin) {
       throw new BadRequestException(
-        'Email, mot de passe et cin sont obligatoires',
+        'Email et cin sont obligatoires',
       );
     }
 
